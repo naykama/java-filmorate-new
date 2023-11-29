@@ -25,50 +25,43 @@ class UserValidationTest {
 
     @Test
     void userValidTest() {
-        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name"
-                , LocalDate.of(1900, 01, 01));
+        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations = validator.validate(user);
         assertTrue(validations.isEmpty());
     }
 
     @Test
     void userBadEmailValidTest() {
-        User user = new User(1, "", "userValidTest_test", "userValidTest name"
-                , LocalDate.of(1900, 01, 01));
+        User user = new User(1, "", "userValidTest_test", "userValidTest name", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations = validator.validate(user);
         assertTrue(validations.size() == 1);
 
-        User user1 = new User(1, "mail!!mail.ru", "userValidTest_test", "userValidTest name"
-                , LocalDate.of(1900, 01, 01));
+        User user1 = new User(1, "mail!!mail.ru", "userValidTest_test", "userValidTest name", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations1 = validator.validate(user1);
         assertTrue(validations.size() == 1);
     }
 
     @Test
     void userBadLoginValidTest() {
-        User user = new User(1, "mail@mail.ru", "userValidTest test", "userValidTest name"
-                , LocalDate.of(1900, 01, 01));
+        User user = new User(1, "mail@mail.ru", "userValidTest test", "userValidTest name", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations = validator.validate(user);
         assertTrue(validations.size() == 1);
 
-        User user1 = new User(1, "mail@mail.ru", " ", "userValidTest name"
-                , LocalDate.of(1900, 01, 01));
+        User user1 = new User(1, "mail@mail.ru", " ", "userValidTest name", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations1 = validator.validate(user1);
         assertTrue(validations.size() == 1);
     }
 
     @Test
     void userBadBirthdayValidTest() {
-        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name"
-                , LocalDate.of(2900, 01, 01));
+        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name", LocalDate.of(2900, 01, 01));
         Set<ConstraintViolation<User>> validations = validator.validate(user);
         assertTrue(validations.size() == 1);
     }
 
     @Test
     void userEmptyNameValidTest() {
-        User user = new User(1, "mail@mail.ru", "userValidTest_test", ""
-                , LocalDate.of(1900, 01, 01));
+        User user = new User(1, "mail@mail.ru", "userValidTest_test", "", LocalDate.of(1900, 01, 01));
         Set<ConstraintViolation<User>> validations = validator.validate(user);
         assertTrue(validations.isEmpty());
     }
