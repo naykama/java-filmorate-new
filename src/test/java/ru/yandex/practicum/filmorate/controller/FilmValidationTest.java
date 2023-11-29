@@ -25,16 +25,14 @@ class FilmValidationTest {
 
     @Test
     void filmValidTest() {
-        Film film = new Film(2, "filmValidTest name", "filmValidTest film"
-                , LocalDate.of(2012, 12, 12), 160);
+        Film film = new Film(2, "filmValidTest name", "filmValidTest film", LocalDate.of(2012, 12, 12), 160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
         assertTrue(validations.isEmpty());
     }
 
     @Test
     void filmBadNameValidTest() {
-        Film film = new Film(2, "", "filmBadNameValidTest film"
-                , LocalDate.of(2012, 12, 12), 160);
+        Film film = new Film(2, "", "filmBadNameValidTest film", LocalDate.of(2012, 12, 12), 160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
         assertTrue(validations.size() == 1);
     }
@@ -42,8 +40,7 @@ class FilmValidationTest {
     @Test
     void filmBadDescriptionValidTest() {
         String description = "description".repeat(201);
-        Film film = new Film(2, "filmBadDescriptionValidTest", description
-                , LocalDate.of(2012, 12, 12), 160);
+        Film film = new Film(2, "filmBadDescriptionValidTest", description, LocalDate.of(2012, 12, 12), 160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
         assertTrue(validations.size() == 1);
     }
@@ -51,8 +48,7 @@ class FilmValidationTest {
     @Test
     void filmBadReleaseDateValidTest() {
         Film film = new Film(2, "filmBadDescriptionValidTest"
-                , "filmBadReleaseDateValidTest description"
-                , LocalDate.of(2040, 12, 12), 160);
+                , "filmBadReleaseDateValidTest description", LocalDate.of(2040, 12, 12), 160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
         assertTrue(validations.size() == 1);
     }
@@ -60,8 +56,7 @@ class FilmValidationTest {
     @Test
     void filmBadDurationValidTest() {
         Film film = new Film(2, "filmBadDescriptionValidTest"
-                , "filmBadReleaseDateValidTest description"
-                , LocalDate.of(2012, 12, 12), -160);
+                , "filmBadReleaseDateValidTest description", LocalDate.of(2012, 12, 12), -160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
         assertTrue(validations.size() == 1);
     }
