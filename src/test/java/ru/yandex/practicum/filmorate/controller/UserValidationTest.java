@@ -58,6 +58,14 @@ class UserValidationTest {
     }
 
     @Test
+    void userBadBirthdayValidTest() {
+        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name"
+                , LocalDate.of(2900, 01, 01));
+        Set<ConstraintViolation<User>> validations = validator.validate(user);
+        assertTrue(validations.size() == 1);
+    }
+
+    @Test
     void userEmptyNameValidTest() {
         User user = new User(1, "mail@mail.ru", "userValidTest_test", ""
                 , LocalDate.of(1900, 01, 01));
@@ -65,11 +73,5 @@ class UserValidationTest {
         assertTrue(validations.isEmpty());
     }
 
-    @Test
-    void userBadBirthdayValidTest() {
-        User user = new User(1, "mail@mail.ru", "userValidTest_test", "userValidTest name"
-                , LocalDate.of(2900, 01, 01));
-        Set<ConstraintViolation<User>> validations = validator.validate(user);
-        assertTrue(validations.size() == 1);
-    }
+
 }
