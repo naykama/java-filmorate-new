@@ -15,8 +15,8 @@ import java.util.List;
 @Slf4j
 @RestController
 public class FilmController {
-    private final int MAXDESCRIPTIONSIZE = 200;
-    private final LocalDate MINRELEASEDATE = LocalDate.of(1895, 12, 28);
+    private final int maxDescriptionSize = 200;
+    private final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
     private int id = 1;
     private static final List<Film> films = new ArrayList<>();
 
@@ -57,11 +57,11 @@ public class FilmController {
             log.error("Название не может быть пустым");
             throw new ValidationException("Название не может быть пустым");
         }
-        if (film.getDescription().length() > MAXDESCRIPTIONSIZE) {
+        if (film.getDescription().length() > maxDescriptionSize) {
             log.error("Максимальная длина описания — 200 символов");
             throw new ValidationException("Максимальная длина описания — 200 символов");
         }
-        if (film.getReleaseDate().isBefore(MINRELEASEDATE)) {
+        if (film.getReleaseDate().isBefore(minReleaseDate)) {
             log.error("Дата релиза — не раньше 28 декабря 1895 года");
             throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
         }

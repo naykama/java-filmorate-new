@@ -11,6 +11,7 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
 @Slf4j
 @RestController
 public class UserController {
@@ -37,8 +38,8 @@ public class UserController {
     public User put(@Valid @RequestBody User user) {
         validateUser(user);
         boolean userIdExist = users.stream().allMatch(userFoeEach -> userFoeEach.getId() == user.getId());
-        if(!userIdExist){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Пользователь с указанным ID не найден");
+        if (!userIdExist) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с указанным ID не найден");
         }
         users.removeIf(userFoeEach -> userFoeEach.getId() == user.getId());
         users.add(user);
@@ -50,7 +51,7 @@ public class UserController {
         return id++;
     }
 
-    private void validateUser(User user){
+    private void validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             log.error("Электронная почта не может быть пустой и должна содержать символ @");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");

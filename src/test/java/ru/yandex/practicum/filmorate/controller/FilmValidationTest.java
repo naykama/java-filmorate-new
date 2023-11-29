@@ -34,7 +34,7 @@ class FilmValidationTest {
         Film film = new Film(2,"","filmBadNameValidTest film"
                 , LocalDate.of(2012,12,12),160);
         Set<ConstraintViolation<Film>> validations = validator.validate(film);
-        assertTrue(validations.size()==1);
+        assertTrue(validations.size() == 1);
     }
     @Test
     void filmBadDescriptionValidTest(){
