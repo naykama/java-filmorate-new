@@ -27,7 +27,7 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User post(@Valid @RequestBody User user) {
-        validateUser(user);
+//        validateUser(user);
         user.setId(incrementId());
         users.add(user);
         log.info(user.getName() + " был добавлен к списку пользователей");
@@ -36,7 +36,7 @@ public class UserController {
 
     @PutMapping(value = "/users")
     public User put(@Valid @RequestBody User user) {
-        validateUser(user);
+//        validateUser(user);
         boolean userIdExist = users.stream().allMatch(userFoeEach -> userFoeEach.getId() == user.getId());
         if (!userIdExist) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с указанным ID не найден");
@@ -51,26 +51,26 @@ public class UserController {
         return id++;
     }
 
-    private void validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.error("Электронная почта не может быть пустой и должна содержать символ @");
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
-        }
-
-        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.error("Логин не может быть пустым и содержать пробелы");
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-        }
-
-        if (user.getName() == null) {
-            log.info("Поскольку имя отсутствовало, оно было записано так же как и логин");
-            user.setName(user.getLogin());
-        }
-
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Дата рождения не может быть в будущем");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        }
-    }
+//    private void validateUser(User user) {
+//        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
+//            log.error("Электронная почта не может быть пустой и должна содержать символ @");
+//            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+//        }
+//
+//        if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
+//            log.error("Логин не может быть пустым и содержать пробелы");
+//            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+//        }
+//
+//        if (user.getName() == null) {
+//            log.info("Поскольку имя отсутствовало, оно было записано так же как и логин");
+//            user.setName(user.getLogin());
+//        }
+//
+//        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+//            log.error("Дата рождения не может быть в будущем");
+//            throw new ValidationException("Дата рождения не может быть в будущем");
+//        }
+//    }
 
 }

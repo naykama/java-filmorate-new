@@ -15,8 +15,8 @@ import java.util.List;
 @Slf4j
 @RestController
 public class FilmController {
-    private final int maxDescriptionSize = 200;
-    private final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+//    private final int maxDescriptionSize = 200;
+//    private final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
     private int id = 1;
     private static final List<Film> films = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film post(@Valid @RequestBody Film film) {
-        validate(film);
+//        validate(film);
         film.setId(incrementId());
         films.add(film);
         log.info(film.getName() + " был добавлен к списку филюмов");
@@ -37,7 +37,7 @@ public class FilmController {
 
     @PutMapping(value = "/films")
     public Film put(@Valid @RequestBody Film film) {
-        validate(film);
+//        validate(film);
         boolean filmIdExist = films.stream().allMatch(userFoeEach -> userFoeEach.getId() == film.getId());
         if (!filmIdExist) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с указанным ID не найден");
@@ -52,22 +52,22 @@ public class FilmController {
         return id++;
     }
 
-    private void validate(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.error("Название не может быть пустым");
-            throw new ValidationException("Название не может быть пустым");
-        }
-        if (film.getDescription().length() > maxDescriptionSize) {
-            log.error("Максимальная длина описания — 200 символов");
-            throw new ValidationException("Максимальная длина описания — 200 символов");
-        }
-        if (film.getReleaseDate().isBefore(minReleaseDate)) {
-            log.error("Дата релиза — не раньше 28 декабря 1895 года");
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (film.getDuration() < 0) {
-            log.error("Продолжительность фильма должна быть положительной");
-            throw new ValidationException("Продолжительность фильма должна быть положительной");
-        }
-    }
+//    private void validate(Film film) {
+//        if (film.getName() == null || film.getName().isBlank()) {
+//            log.error("Название не может быть пустым");
+//            throw new ValidationException("Название не может быть пустым");
+//        }
+//        if (film.getDescription().length() > maxDescriptionSize) {
+//            log.error("Максимальная длина описания — 200 символов");
+//            throw new ValidationException("Максимальная длина описания — 200 символов");
+//        }
+//        if (film.getReleaseDate().isBefore(minReleaseDate)) {
+//            log.error("Дата релиза — не раньше 28 декабря 1895 года");
+//            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+//        }
+//        if (film.getDuration() < 0) {
+//            log.error("Продолжительность фильма должна быть положительной");
+//            throw new ValidationException("Продолжительность фильма должна быть положительной");
+//        }
+//    }
 }
