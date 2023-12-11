@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
     private int id = 1;
     private static final List<User> users = new ArrayList<>();
 
@@ -21,6 +21,9 @@ public class InMemoryUserStorage implements UserStorage{
     @Override
     public User post(User user) {
         user.setId(incrementId());
+        if (user.getName() == null) {
+            user.setName(user.getLogin());
+        }
         users.add(user);
         return user;
     }
@@ -31,10 +34,14 @@ public class InMemoryUserStorage implements UserStorage{
         if (!userIdExist) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с указанным ID не найден");
         }
+
         users.removeIf(userFoeEach -> userFoeEach.getId() == user.getId());
         users.add(user);
         return user;
     }
+
+
+
     private int incrementId() {
         return id++;
     }

@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface UserStorage {
     List<User> findAll();
+
     User post(User user);
+
     User put(User user);
 }

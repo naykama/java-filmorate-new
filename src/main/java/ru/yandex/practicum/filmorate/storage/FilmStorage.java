@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface FilmStorage {
     List<Film> findAll();
+
     Film post(Film film);
+
     Film put(Film film);
 
 }
