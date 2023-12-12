@@ -16,7 +16,7 @@ public class Film {
     private final String name;
     @Size(max = 200, message = "Описание максимум 200 символов")
     private final String description;
-    @PastOrPresent(message = "Дата не может быть в будущем")
+    @PastOrPresent()
     private final LocalDate releaseDate;
     @Positive(message = "Дата должна быть положительной")
     private final int duration;
