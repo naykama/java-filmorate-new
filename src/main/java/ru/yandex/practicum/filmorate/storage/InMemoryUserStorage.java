@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exeption.UserFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -19,9 +18,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public User findUserBeId(int id) {
+        User user = users.stream().filter(u -> u.getId()==id).findFirst()
+                .orElseThrow(()->new UserFoundException("Нет пользователя с ID: " + id));
+        return user;
+    }
+
+
+    @Override
     public User post(User user) {
         user.setId(incrementId());
-        if (user.getName() == null) {
+        if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
         users.add(user);
@@ -32,7 +39,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User put(User user) {
         boolean userIdExist = users.stream().allMatch(userFoeEach -> userFoeEach.getId() == user.getId());
         if (!userIdExist) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с указанным ID не найден");
+            throw new UserFoundException("Пользователь с указанным ID не найден");
         }
 
         users.removeIf(userFoeEach -> userFoeEach.getId() == user.getId());

@@ -37,6 +37,11 @@ public class UserController {
         log.info("Список пользователей выведен, сейчас их количество: " + users.size());
         return inMemoryUserStorage.findAll();
     }
+    @GetMapping("/users/{id}")
+    public User findUserById(@PathVariable int id) {
+        log.info("Список пользователей выведен, сейчас их количество: " + users.size());
+        return inMemoryUserStorage.findUserBeId(id);
+    }
 
     @PostMapping(value = "/users")
     public User post(@Valid @RequestBody User user) {
@@ -73,12 +78,12 @@ public class UserController {
     }
 
     @GetMapping("/users/{id}/friends")
-    public Set<User> getFriends(@PathVariable Integer id) {
+    public ArrayList<User> getFriends(@PathVariable Integer id) {
         return userService.getFriends(id);
     }
 
     @GetMapping("/users/{id}/friends/common/{otherId}")
-    public Set<User> getCommonFriends(@PathVariable Integer id,@PathVariable Integer otherId) {
+    public ArrayList<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         return userService.getCommonFriends(id,otherId);
     }
 
