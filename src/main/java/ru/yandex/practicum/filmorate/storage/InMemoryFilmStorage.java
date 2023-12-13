@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
+import ru.yandex.practicum.filmorate.exeption.UserFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -24,6 +25,12 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.setId(incrementId());
         films.add(film);
         return film;
+    }
+
+    @Override
+    public Film findFimById(int id){
+        return films.stream().filter(film -> film.getId()==id).findFirst()
+                .orElseThrow(()->new UserFoundException("Нет фильма с ID: " + id));
     }
 
     @Override

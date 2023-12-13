@@ -26,7 +26,7 @@ public class FilmService {
                 .orElseThrow(() -> new FilmFoundException("Нет фильма с ID:  + id"));
         if (!user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().add(filmFound);
-            filmFound.setLike(filmFound.getLike() + 1);
+            filmFound.setRate(filmFound.getRate() + 1);
         } else {
             throw new FilmFoundException("Ползовтаель может опавить только один лайк, одному фильму");
         }
@@ -37,9 +37,9 @@ public class FilmService {
                 .orElseThrow(() -> new FilmFoundException("Нет фильма с ID:  + id"));
         if (user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().remove(filmFound);
-            filmFound.setLike(filmFound.getLike() - 1);
+            filmFound.setRate(filmFound.getRate() - 1);
         } else {
-            throw new FilmLikeException("Пользоталь не тсавил лайк этому фильму");
+            throw new FilmLikeException("Пользователь не ставил лайк этому фильму");
         }
     }
 }

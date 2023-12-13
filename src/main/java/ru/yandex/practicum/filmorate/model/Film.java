@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 
@@ -19,7 +18,7 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive(message = "Дата должна быть положительной")
     private final int duration;
-    private int like;
+    private int rate;
 
 
 
@@ -30,7 +29,7 @@ public class Film {
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
-        this.like = 0;
+        this.rate = 0;
 
     }
 }

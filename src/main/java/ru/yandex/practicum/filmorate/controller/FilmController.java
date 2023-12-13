@@ -11,19 +11,20 @@ import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
 public class FilmController {
-//    private final int maxDescriptionSize = 200;
+    //    private final int maxDescriptionSize = 200;
 //    private final LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
     private final InMemoryFilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage,FilmService filmService){
-        this.inMemoryFilmStorage=inMemoryFilmStorage;
-        this.filmService=filmService;
+    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
+        this.inMemoryFilmStorage = inMemoryFilmStorage;
+        this.filmService = filmService;
     }
 
 //    private int id = 1;
@@ -34,6 +35,12 @@ public class FilmController {
     public List<Film> findAll() {
 //        log.info("Список фильмов выведен, сейчас их количество: " + films.size());
         return inMemoryFilmStorage.findAll();
+    }
+
+    @GetMapping("/films/{id}")
+    public Film findFimById(@PathVariable int id) {
+//        log.info("Список фильмов выведен, сейчас их количество: " + films.size());
+        return inMemoryFilmStorage.findFimById(id);
     }
 
     @PostMapping(value = "/films")
@@ -57,13 +64,24 @@ public class FilmController {
         log.info("\"" + film.getId() + "\" фильм под данным id был обновлен");
         return inMemoryFilmStorage.put(film);
     }
+
     @PutMapping(value = "/films/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
-        filmService.addLike(id,userId);
+        filmService.addLike(id, userId);
     }
+
     @DeleteMapping(value = "/films/{id}/like/{userId}")
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
-        filmService.dellLike(id,userId);
+        filmService.dellLike(id, userId);
+    }
+    @GetMapping("/films/popular?count=count")
+    public List<Film> popular(@RequestParam Optional<Integer> count){
+        if(count.isPresent()){
+            //логика если значение есть
+        }else{
+            //если нет
+        }
+        return null;
     }
 
 //    private int incrementId() {
