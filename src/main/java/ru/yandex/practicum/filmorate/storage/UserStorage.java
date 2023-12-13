@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserStorage {
     List<User> findAll();
 
-    User findUserBeId(int id);
+    User findUserById(int id);
 
     User post(User user);
 

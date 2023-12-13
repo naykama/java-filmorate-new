@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ public class User {
     @Past(message = "Дата рождения не может быть в будущем")
     private final LocalDate birthday;
     private HashSet<Integer> friends ;
+    private ArrayList<Film> filmsLike;
 
 
     public User(int id, String email, String login, String name, LocalDate birthday) {
@@ -37,6 +39,7 @@ public class User {
         this.name = name;
         this.birthday = birthday;
         this.friends = new HashSet<>();
+        this.filmsLike = new ArrayList<>();
     }
 
 }

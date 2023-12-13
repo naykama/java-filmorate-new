@@ -2,10 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exeption.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
@@ -59,6 +56,14 @@ public class FilmController {
 //        films.add(film);
         log.info("\"" + film.getId() + "\" фильм под данным id был обновлен");
         return inMemoryFilmStorage.put(film);
+    }
+    @PutMapping(value = "/films/{id}/like/{userId}")
+    public void addLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.addLike(id,userId);
+    }
+    @DeleteMapping(value = "/films/{id}/like/{userId}")
+    public void dellLike(@PathVariable int id, @PathVariable int userId) {
+        filmService.dellLike(id,userId);
     }
 
 //    private int incrementId() {

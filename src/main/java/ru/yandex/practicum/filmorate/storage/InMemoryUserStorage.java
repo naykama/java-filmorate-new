@@ -18,7 +18,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findUserBeId(int id) {
+    public User findUserById(int id) {
         User user = users.stream().filter(u -> u.getId()==id).findFirst()
                 .orElseThrow(()->new UserFoundException("Нет пользователя с ID: " + id));
         return user;
