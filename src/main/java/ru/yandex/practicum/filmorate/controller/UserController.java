@@ -39,26 +39,13 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User post(@Valid @RequestBody User user) {
-//        validateUser(user);
-//        user.setId(incrementId());
-//        users.add(user);
         log.info(user.getName() + " был добавлен к списку пользователей");
-//        return user;
         return inMemoryUserStorage.post(user);
     }
 
     @PutMapping(value = "/users")
     public User put(@Valid @RequestBody User user) {
-//        validateUser(user);
-//        boolean userIdExist = users.stream().allMatch(userFoeEach -> userFoeEach.getId() == user.getId());
-//        if (!userIdExist) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Пользователь с указанным ID не найден");
-//        }
-//        users.removeIf(userFoeEach -> userFoeEach.getId() == user.getId());
-//        users.add(user);
-
         log.info("\"" + user.getId() + "\" пользователь под данным id был обновлен");
-//        return user;
     return inMemoryUserStorage.put(user);
     }
 

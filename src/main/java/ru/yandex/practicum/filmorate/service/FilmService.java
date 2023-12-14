@@ -5,9 +5,15 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exeption.FilmFoundException;
 import ru.yandex.practicum.filmorate.exeption.FilmLikeException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmPopularComparator;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -41,5 +47,21 @@ public class FilmService {
         } else {
             throw new FilmLikeException("Пользователь не ставил лайк этому фильму");
         }
+    }
+    public List<Film> popular(Optional<Integer> count){
+        List<Film> films = new ArrayList<>(inMemoryFilmStorage.findAll());
+        Collections.sort(films,new FilmPopularComparator());
+        if(!count.isPresent()){
+            if (films.size()<=10){
+                return films;
+            }else{
+                List<Film> firstTenFilms = films.subList(0,11);
+                return firstTenFilms;
+            }
+        }else{
+            List<Film> firstCountFilms = films.subList(0,count.get());
+            return firstCountFilms;
+        }
+
     }
 }
