@@ -1,22 +1,14 @@
 package ru.yandex.practicum.filmorate.model;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Component;
-
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
 
 @Data
-
-//@AllArgsConstructor
-
 public class User {
     private int id;
     @NotEmpty(message = "Электронная почта не может быть")
@@ -28,7 +20,7 @@ public class User {
     private String name;
     @Past(message = "Дата рождения не может быть в будущем")
     private final LocalDate birthday;
-    private HashSet<Integer> friends ;
+    private HashSet<Integer> friends;
     private ArrayList<Film> filmsLike;
 
 

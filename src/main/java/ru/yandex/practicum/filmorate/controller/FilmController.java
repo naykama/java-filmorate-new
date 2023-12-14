@@ -22,27 +22,24 @@ public class FilmController {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
         this.filmService = filmService;
     }
+
     @GetMapping("/films")
     public List<Film> findAll() {
-//        log.info("Список фильмов выведен, сейчас их количество: " + films.size());
         return inMemoryFilmStorage.findAll();
     }
 
     @GetMapping("/films/{id}")
     public Film findFimById(@PathVariable int id) {
-//        log.info("Список фильмов выведен, сейчас их количество: " + films.size());
         return inMemoryFilmStorage.findFimById(id);
     }
 
     @PostMapping(value = "/films")
     public Film post(@Valid @RequestBody Film film) {
-        log.info(film.getName() + " был добавлен к списку филюмов");
         return inMemoryFilmStorage.post(film);
     }
 
     @PutMapping(value = "/films")
     public Film put(@Valid @RequestBody Film film) {
-        log.info("\"" + film.getId() + "\" фильм под данным id был обновлен");
         return inMemoryFilmStorage.put(film);
     }
 
@@ -55,9 +52,10 @@ public class FilmController {
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
         filmService.dellLike(id, userId);
     }
+
     @GetMapping("/films/popular")
-    public List<Film> popular(@RequestParam Optional<Integer> count){
-       return filmService.popular(count);
+    public List<Film> popular(@RequestParam Optional<Integer> count) {
+        return filmService.popular(count);
     }
 
 }

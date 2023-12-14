@@ -20,9 +20,6 @@ public class Film {
     private final int duration;
     private int rate;
 
-
-
-
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
         this.name = name;
@@ -30,6 +27,5 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = 0;
-
     }
 }
