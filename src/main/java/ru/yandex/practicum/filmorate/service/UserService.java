@@ -21,48 +21,73 @@ public class UserService {
     }
 
     public void addFriends(int id, int friendsId) {
-        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + friendsId));
+//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
+//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + friendsId));
+        if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(friendsId)) {
+            throw new EntityNotFoundException("Нет пользователя с таким ID");
+        }
+        User userOne = userStorage.getUsers().get(id);
+        User userTwo = userStorage.getUsers().get(friendsId);
+
         userOne.getFriends().add(friendsId);
         userTwo.getFriends().add(id);
-        log.info(String.format("Пользователь \"%s\" добавил \"%s\", в друзья", userOne.getLogin(), userTwo.getLogin()));
+        log.info("Пользователь \"{}\" добавил \"{}\", в друзья", userOne.getLogin(), userTwo.getLogin());
     }
 
     public void dellFriends(Integer id, Integer friendsId) {
-        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет друга с таким id: " + friendsId));
+//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
+//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет друга с таким id: " + friendsId));
+        if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(friendsId)) {
+            throw new EntityNotFoundException("Нет пользователя с таким ID");
+        }
+        User userOne = userStorage.getUsers().get(id);
+        User userTwo = userStorage.getUsers().get(friendsId);
+
         userOne.getFriends().remove(friendsId);
         userTwo.getFriends().remove(id);
-        log.info(String.format("Пользователь \"%s\" удалил \"%s\", из друзей", userOne.getLogin(), userTwo.getLogin()));
+        log.info(String.format("Пользователь \"{}\" удалил \"{}\", из друзей", userOne.getLogin(), userTwo.getLogin()));
 
     }
 
-    public ArrayList<User> getFriends(Integer id) {
+    public List<User> getFriends(Integer id) {
         Set<User> friendsList = new HashSet<>();
-        User user = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
+//        User user = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
+        if(!userStorage.getUsers().containsKey(id)){
+            throw new EntityNotFoundException("Нет пользователя с ID: " + id);
+        }
+        User user = userStorage.getUsers().get(id);
         for (Integer friend : user.getFriends()) {
             friendsList.add(userStorage.findAll().stream().filter(user1 -> user1.getId() == friend).findFirst().get());
         }
-        ArrayList<User> arrayUser = new ArrayList<>(friendsList);
+        List<User> arrayUser = new ArrayList<>(friendsList);
         Collections.sort(arrayUser, new UserComparator());
-        log.info("Выведены друзья пользователя: " + user.getLogin());
+        log.info("Выведены друзья пользователя: {}", user.getLogin());
         return arrayUser;
     }
 
-    public ArrayList<User> getCommonFriends(Integer id, Integer otherId) {
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
         Set<User> friendsList = new HashSet<>();
-        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == otherId).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + otherId));
-        HashSet<Integer> otherSet = new HashSet<>(userOne.getFriends());
+        if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(otherId)) {
+            throw new EntityNotFoundException("Нет пользователя с таким ID");
+        }
+        User userOne = userStorage.getUsers().get(id);
+        User userTwo = userStorage.getUsers().get(otherId);
+//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst()
+//                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
+//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == otherId).findFirst()
+//                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + otherId));
+        Set<Integer> otherSet = new HashSet<>(userOne.getFriends());
         otherSet.retainAll(userTwo.getFriends());
         for (Integer friend : otherSet) {
             friendsList.add(userStorage.findAll().stream().filter(user1 -> user1.getId() == friend).findFirst().get());
         }
-        ArrayList<User> arrayUser = new ArrayList<>(friendsList);
+        List<User> arrayUser = new ArrayList<>(friendsList);
         Collections.sort(arrayUser, new UserComparator());
         log.info("Выведены общине друзья пользователя");
         return arrayUser;
+    }
+
+    public InMemoryUserStorage getUserStorage() {
+        return userStorage;
     }
 }

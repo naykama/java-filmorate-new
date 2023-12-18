@@ -30,11 +30,17 @@ public class FilmService {
 
     public void addLike(int idFilm, int idUser) {
         User user = inMemoryUserStorage.findUserById(idUser);
-        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
+        Film filmFound;
+        if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
+            throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
+        } else {
+            filmFound = inMemoryFilmStorage.getFilms().get(idFilm);
+        }
+//        Film filmFound = inMemoryFilmStorage.getFilms().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
         if (!user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().add(filmFound);
             filmFound.setRate(filmFound.getRate() + 1);
-            log.info(String.format("Пользователь: \"%s\", поставил лайк фильму: \"%s\"", user.getLogin(), filmFound.getName()));
+            log.info(String.format("Пользователь: \"{}\", поставил лайк фильму: \"{}\"", user.getLogin(), filmFound.getName()));
         } else {
             throw new EntityNotFoundException("Пользователь может поставить только один лайк, одному фильму");
         }
@@ -42,18 +48,24 @@ public class FilmService {
 
     public void dellLike(int idFilm, int idUser) {
         User user = inMemoryUserStorage.findUserById(idUser);
-        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
+//        Film filmFound = inMemoryFilmStorage.getFilms().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
+        Film filmFound = null;
+        if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
+            throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
+        } else {
+            filmFound = inMemoryFilmStorage.getFilms().get(idFilm);
+        }
         if (user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().remove(filmFound);
             filmFound.setRate(filmFound.getRate() - 1);
-            log.info(String.format("Пользователь: \"%s\", убрал лайк фильму: \"%s\"", user.getLogin(), filmFound.getName()));
+            log.info(String.format("Пользователь: \"{}\", убрал лайк фильму: \"{}\"", user.getLogin(), filmFound.getName()));
         } else {
             throw new FilmLikeException("Пользователь не ставил лайк этому фильму");
         }
     }
 
     public List<Film> popular(Optional<Integer> count) {
-        List<Film> films = new ArrayList<>(inMemoryFilmStorage.findAll());
+        List<Film> films = new ArrayList<>(inMemoryFilmStorage.getFilms().values());
         Collections.sort(films, new FilmPopularComparator());
         if (!count.isPresent()) {
             if (films.size() <= 10) {
@@ -69,6 +81,10 @@ public class FilmService {
             log.info("Выведены популярные фильмы");
             return firstCountFilms;
         }
-
     }
+
+    public InMemoryFilmStorage getInMemoryFilmStorage() {
+        return inMemoryFilmStorage;
+    }
+
 }

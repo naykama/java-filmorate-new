@@ -21,12 +21,19 @@ public class ErrorHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validException(final MethodArgumentNotValidException e) {
+    public ErrorResponse validException(final IllegalArgumentException e) {
+        log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
+        return new ErrorResponse("Ошибка валидации");
+    }
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse validCountException(final MethodArgumentNotValidException e) {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }
 
-    @ExceptionHandler
+
+    @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
         log.debug("Произошла непредвиденная ошибка {}", e.getMessage());

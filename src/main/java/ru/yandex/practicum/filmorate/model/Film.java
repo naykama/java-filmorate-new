@@ -8,6 +8,7 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
+@NotNull
 public class Film {
     private int id;
     @NotEmpty(message = "Имя не содержит символов")

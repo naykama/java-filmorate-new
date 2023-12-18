@@ -7,6 +7,8 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Data
 public class User {
@@ -18,10 +20,11 @@ public class User {
     @Pattern(regexp = "\\S+", message = "Логин содержать пробелы")
     private final String login;
     private String name;
-    @Past(message = "Дата рождения не может быть в будущем")
+    @NotNull
+    @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private final LocalDate birthday;
-    private HashSet<Integer> friends;
-    private ArrayList<Film> filmsLike;
+    private Set<Integer> friends;
+    private List<Film> filmsLike;
 
 
     public User(int id, String email, String login, String name, LocalDate birthday) {

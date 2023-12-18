@@ -13,64 +13,56 @@ import java.util.List;
 
 @Slf4j
 @RestController
-
+@RequestMapping("/users")
 public class UserController {
     private final UserService userService;
-    private final InMemoryUserStorage inMemoryUserStorage;
 
     @Autowired
     public UserController(UserService userService, InMemoryUserStorage inMemoryUserStorage) {
         this.userService = userService;
-        this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
-    private int id = 1;
     private static final List<User> users = new ArrayList<>();
 
-    @GetMapping("/users")
+    @GetMapping()
     public List<User> findAll() {
-        return inMemoryUserStorage.findAll();
+        return userService.getUserStorage().findAll();
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/{id}")
     public User findUserById(@PathVariable int id) {
-        log.info("Список пользователей выведен, сейчас их количество: " + users.size());
-        return inMemoryUserStorage.findUserById(id);
+        return userService.getUserStorage().findUserById(id);
     }
 
-    @PostMapping(value = "/users")
+    @PostMapping()
     public User post(@Valid @RequestBody User user) {
-        log.info(user.getName() + " был добавлен к списку пользователей");
-        return inMemoryUserStorage.post(user);
+        return userService.getUserStorage().post(user);
     }
 
-    @PutMapping(value = "/users")
+    @PutMapping()
     public User put(@Valid @RequestBody User user) {
-        log.info("\"" + user.getId() + "\" пользователь под данным id был обновлен");
-        return inMemoryUserStorage.put(user);
+        return userService.getUserStorage().put(user);
     }
 
-    @PutMapping(value = "/users/{id}/friends/{friendId}")
+    @PutMapping(value = "/{id}/friends/{friendId}")
     public void addFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.addFriends(id, friendId);
     }
 
-    @DeleteMapping(value = "/users/{id}/friends/{friendId}")
+    @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void dellFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         userService.dellFriends(id, friendId);
     }
 
-    @GetMapping("/users/{id}/friends")
-    public ArrayList<User> getFriends(@PathVariable Integer id) {
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Integer id) {
         return userService.getFriends(id);
     }
 
-    @GetMapping("/users/{id}/friends/common/{otherId}")
-    public ArrayList<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
-    private int incrementId() {
-        return id++;
-    }
+
 }

@@ -2,58 +2,60 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
 @RestController
+@RequestMapping("/films")
 public class FilmController {
-    private final InMemoryFilmStorage inMemoryFilmStorage;
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(InMemoryFilmStorage inMemoryFilmStorage, FilmService filmService) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
-    @GetMapping("/films")
+    @GetMapping()
     public List<Film> findAll() {
-        return inMemoryFilmStorage.findAll();
+        return filmService.getInMemoryFilmStorage().findAll();
     }
 
-    @GetMapping("/films/{id}")
+    @GetMapping("/{id}")
     public Film findFimById(@PathVariable int id) {
-        return inMemoryFilmStorage.findFimById(id);
+        return filmService.getInMemoryFilmStorage().findFimById(id);
     }
 
-    @PostMapping(value = "/films")
+    @PostMapping()
     public Film post(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.post(film);
+        return filmService.getInMemoryFilmStorage().post(film);
     }
 
-    @PutMapping(value = "/films")
+    @PutMapping()
     public Film put(@Valid @RequestBody Film film) {
-        return inMemoryFilmStorage.put(film);
+        return filmService.getInMemoryFilmStorage().put(film);
     }
 
-    @PutMapping(value = "/films/{id}/like/{userId}")
+    @PutMapping(value = "/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
         filmService.addLike(id, userId);
     }
 
-    @DeleteMapping(value = "/films/{id}/like/{userId}")
+    @DeleteMapping(value = "/{id}/like/{userId}")
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
         filmService.dellLike(id, userId);
     }
 
-    @GetMapping("/films/popular")
+    @Validated
+    @Positive
+    @GetMapping("/popular")
     public List<Film> popular(@RequestParam Optional<Integer> count) {
         return filmService.popular(count);
     }
