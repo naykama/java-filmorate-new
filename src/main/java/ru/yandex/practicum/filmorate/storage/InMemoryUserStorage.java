@@ -32,9 +32,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User post(User user) {
         user.setId(incrementId());
-//        if (user.getName() == null || user.getName().isBlank()) {
-//            user.setName(user.getLogin());
-//        }
         checkValidName(user);
         users.put(user.getId(), user);
         log.info("{} был добавлен к списку пользователей", user.getName());
@@ -61,7 +58,8 @@ public class InMemoryUserStorage implements UserStorage {
     public Map<Integer, User> getUsers() {
         return users;
     }
-    private void checkValidName(User user){
+
+    private void checkValidName(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
