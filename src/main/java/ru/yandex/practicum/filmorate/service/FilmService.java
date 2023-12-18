@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exeption.FilmFoundException;
+import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exeption.FilmLikeException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmPopularComparator;
@@ -30,19 +30,19 @@ public class FilmService {
 
     public void addLike(int idFilm, int idUser) {
         User user = inMemoryUserStorage.findUserById(idUser);
-        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new FilmFoundException("Нет фильма с ID:  + id"));
+        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
         if (!user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().add(filmFound);
             filmFound.setRate(filmFound.getRate() + 1);
             log.info(String.format("Пользователь: \"%s\", поставил лайк фильму: \"%s\"", user.getLogin(), filmFound.getName()));
         } else {
-            throw new FilmFoundException("Пользователь может поставить только один лайк, одному фильму");
+            throw new EntityNotFoundException("Пользователь может поставить только один лайк, одному фильму");
         }
     }
 
     public void dellLike(int idFilm, int idUser) {
         User user = inMemoryUserStorage.findUserById(idUser);
-        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new FilmFoundException("Нет фильма с ID:  + id"));
+        Film filmFound = inMemoryFilmStorage.findAll().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
         if (user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().remove(filmFound);
             filmFound.setRate(filmFound.getRate() - 1);

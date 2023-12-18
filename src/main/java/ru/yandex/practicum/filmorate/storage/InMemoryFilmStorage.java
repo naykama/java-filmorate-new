@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exeption.UserFoundException;
+import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film findFimById(int id) {
-        Film filmFound = films.stream().filter(film -> film.getId() == id).findFirst().orElseThrow(() -> new UserFoundException("Нет фильма с ID: " + id));
+        Film filmFound = films.stream().filter(film -> film.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID: " + id));
         log.info("Найден фильм под ID: " + films.size());
         return filmFound;
     }
