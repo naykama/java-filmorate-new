@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.exeption.FilmLikeException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmPopularComparator;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,24 +19,23 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class FilmService {
-    private final InMemoryFilmStorage inMemoryFilmStorage;
-    private final InMemoryUserStorage inMemoryUserStorage;
+    private final FilmStorage inMemoryFilmStorage;
+    private final UserStorage inMemoryUserStorage;
 
     @Autowired
-    public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
+    public FilmService(FilmStorage inMemoryFilmStorage, UserStorage inMemoryUserStorage) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
 
     public void addLike(int idFilm, int idUser) {
-        User user = inMemoryUserStorage.findUserById(idUser);
+        User user = inMemoryUserStorage.getUsers().get(idUser);
         Film filmFound;
         if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
             throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
         } else {
             filmFound = inMemoryFilmStorage.getFilms().get(idFilm);
         }
-//        Film filmFound = inMemoryFilmStorage.getFilms().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
         if (!user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().add(filmFound);
             filmFound.setRate(filmFound.getRate() + 1);
@@ -47,9 +46,8 @@ public class FilmService {
     }
 
     public void dellLike(int idFilm, int idUser) {
-        User user = inMemoryUserStorage.findUserById(idUser);
-//        Film filmFound = inMemoryFilmStorage.getFilms().stream().filter(film -> film.getId() == idFilm).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID:  + id"));
-        Film filmFound = null;
+        User user = inMemoryUserStorage.findUserById(Optional.of(idUser));
+        Film filmFound;
         if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
             throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
         } else {
@@ -83,7 +81,7 @@ public class FilmService {
         }
     }
 
-    public InMemoryFilmStorage getInMemoryFilmStorage() {
+    public FilmStorage getInMemoryFilmStorage() {
         return inMemoryFilmStorage;
     }
 

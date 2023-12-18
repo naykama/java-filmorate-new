@@ -29,7 +29,7 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film findFimById(@PathVariable int id) {
+    public Film findFimById(@PathVariable Optional<Integer> id) {
         return filmService.getInMemoryFilmStorage().findFimById(id);
     }
 

@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -18,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService, InMemoryUserStorage inMemoryUserStorage) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findUserById(@PathVariable int id) {
+    public User findUserById(@PathVariable Optional<Integer> id) {
         return userService.getUserStorage().findUserById(id);
     }
 

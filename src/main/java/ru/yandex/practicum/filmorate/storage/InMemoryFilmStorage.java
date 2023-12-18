@@ -7,10 +7,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -21,39 +18,32 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public List<Film> findAll() {
         log.info("Список фильмов выведен, сейчас их количество: {}", films.size());
-        return new ArrayList<>(films.values()) ;
+        return new ArrayList<>(films.values());
     }
 
     @Override
     public Film post(Film film) {
         film.setId(incrementId());
-        films.put(film.getId(),film);
+        films.put(film.getId(), film);
         log.info("Фильм добавлен: {}", film.getName());
         return film;
     }
 
     @Override
-    public Film findFimById(int id) {
-        if(!films.containsKey(id)){
+    public Film findFimById(Optional<Integer> id) {
+        if (!films.containsKey(id.get())) {
             throw new EntityNotFoundException("Нет фильма с ID: " + id);
-        }else{
+        } else {
             log.info("Найден фильм под ID: {}", films.size());
-            return films.get(id);
+            return films.get(id.get());
         }
-//        Film filmFound = films.stream().filter(film -> film.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет фильма с ID: " + id));
-
-//        return filmFound;
     }
 
     @Override
     public Film put(Film film) {
-        if(!films.containsKey(film.getId())){
+        if (!films.containsKey(film.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с указанным ID не найден");
         }
-//        boolean filmIdExist = films.stream().allMatch(userFoeEach -> userFoeEach.getId() == film.getId());
-//        if (!filmIdExist) {
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с указанным ID не найден");
-//        }
         films.remove(film.getId());
         films.put(film.getId(), film);
         log.info("{} обновлен", film.getId());

@@ -7,13 +7,14 @@ import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserComparator;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
 
 @Slf4j
 @Service
 public class UserService {
-    private final InMemoryUserStorage userStorage;
+    private final UserStorage userStorage;
 
     @Autowired
     public UserService(InMemoryUserStorage userStorage) {
@@ -21,8 +22,6 @@ public class UserService {
     }
 
     public void addFriends(int id, int friendsId) {
-//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + friendsId));
         if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(friendsId)) {
             throw new EntityNotFoundException("Нет пользователя с таким ID");
         }
@@ -35,8 +34,6 @@ public class UserService {
     }
 
     public void dellFriends(Integer id, Integer friendsId) {
-//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == friendsId).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет друга с таким id: " + friendsId));
         if (!userStorage.getUsers().containsKey(id) || !userStorage.getUsers().containsKey(friendsId)) {
             throw new EntityNotFoundException("Нет пользователя с таким ID");
         }
@@ -51,8 +48,7 @@ public class UserService {
 
     public List<User> getFriends(Integer id) {
         Set<User> friendsList = new HashSet<>();
-//        User user = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst().orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-        if(!userStorage.getUsers().containsKey(id)){
+        if (!userStorage.getUsers().containsKey(id)) {
             throw new EntityNotFoundException("Нет пользователя с ID: " + id);
         }
         User user = userStorage.getUsers().get(id);
@@ -72,10 +68,6 @@ public class UserService {
         }
         User userOne = userStorage.getUsers().get(id);
         User userTwo = userStorage.getUsers().get(otherId);
-//        User userOne = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == id).findFirst()
-//                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + id));
-//        User userTwo = userStorage.findAll().stream().filter(userFinde -> userFinde.getId() == otherId).findFirst()
-//                .orElseThrow(() -> new EntityNotFoundException("Нет пользователя с ID: " + otherId));
         Set<Integer> otherSet = new HashSet<>(userOne.getFriends());
         otherSet.retainAll(userTwo.getFriends());
         for (Integer friend : otherSet) {
@@ -87,7 +79,7 @@ public class UserService {
         return arrayUser;
     }
 
-    public InMemoryUserStorage getUserStorage() {
+    public UserStorage getUserStorage() {
         return userStorage;
     }
 }
