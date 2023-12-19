@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
+import javax.validation.ConstraintViolationException;
+
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
@@ -21,18 +23,17 @@ public class ErrorHandler {
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validException(final IllegalArgumentException e) {
+    public ErrorResponse validCountException(final MethodArgumentNotValidException e) {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validCountException(final MethodArgumentNotValidException e) {
+    public ErrorResponse validException(final ConstraintViolationException e) {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }
-
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

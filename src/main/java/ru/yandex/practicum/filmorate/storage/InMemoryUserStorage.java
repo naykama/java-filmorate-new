@@ -20,12 +20,12 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User findUserById(Optional<Integer> id) {
-        if (!users.containsKey(id.get())) {
+    public User findUserById(int id) {
+        if (!users.containsKey(id)) {
             throw new EntityNotFoundException("Нет пользователя с ID: " + id);
         }
         log.info("Список пользователей выведен, сейчас их количество: {}", users.size());
-        return users.get(id.get());
+        return users.get(id);
     }
 
 
@@ -53,10 +53,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     private int incrementId() {
         return id++;
-    }
-
-    public Map<Integer, User> getUsers() {
-        return users;
     }
 
     private void checkValidName(User user) {

@@ -14,28 +14,39 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
 public class FilmService {
-    private final FilmStorage inMemoryFilmStorage;
-    private final UserStorage inMemoryUserStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage inMemoryFilmStorage, UserStorage inMemoryUserStorage) {
-        this.inMemoryFilmStorage = inMemoryFilmStorage;
-        this.inMemoryUserStorage = inMemoryUserStorage;
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
+        this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
+    }
+
+    public List<Film> findAll() {
+        return filmStorage.findAll();
+    }
+
+    public Film findFimById(int id) {
+        return filmStorage.findFimById(id);
+    }
+
+    public Film post(Film film) {
+        return filmStorage.post(film);
+    }
+
+    public Film put(Film film) {
+        return filmStorage.put(film);
     }
 
     public void addLike(int idFilm, int idUser) {
-        User user = inMemoryUserStorage.getUsers().get(idUser);
+        User user = userStorage.findUserById(idUser);
         Film filmFound;
-        if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
-            throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
-        } else {
-            filmFound = inMemoryFilmStorage.getFilms().get(idFilm);
-        }
+        filmFound = filmStorage.findFimById(idFilm);
         if (!user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().add(filmFound);
             filmFound.setRate(filmFound.getRate() + 1);
@@ -46,13 +57,9 @@ public class FilmService {
     }
 
     public void dellLike(int idFilm, int idUser) {
-        User user = inMemoryUserStorage.findUserById(Optional.of(idUser));
+        User user = userStorage.findUserById(idUser);
         Film filmFound;
-        if (!inMemoryFilmStorage.getFilms().containsKey(idFilm)) {
-            throw new EntityNotFoundException("Нет фильма с ID: " + idFilm);
-        } else {
-            filmFound = inMemoryFilmStorage.getFilms().get(idFilm);
-        }
+        filmFound = filmStorage.findFimById(idFilm);
         if (user.getFilmsLike().contains(filmFound)) {
             user.getFilmsLike().remove(filmFound);
             filmFound.setRate(filmFound.getRate() - 1);
@@ -62,27 +69,22 @@ public class FilmService {
         }
     }
 
-    public List<Film> popular(Optional<Integer> count) {
-        List<Film> films = new ArrayList<>(inMemoryFilmStorage.getFilms().values());
+    public List<Film> popular(int count) {
+        List<Film> films = new ArrayList<>(filmStorage.findAll());
         Collections.sort(films, new FilmPopularComparator());
-        if (!count.isPresent()) {
+        if (count == 10) {
             if (films.size() <= 10) {
                 log.info("Выведены популярные фильмы");
                 return films;
             } else {
-                List<Film> firstTenFilms = films.subList(0, 11);
+                List<Film> firstTenFilms = films.subList(0, 10);
                 log.info("Выведены популярные фильмы");
                 return firstTenFilms;
             }
         } else {
-            List<Film> firstCountFilms = films.subList(0, count.get());
+            List<Film> firstCountFilms = films.subList(0, count);
             log.info("Выведены популярные фильмы");
             return firstCountFilms;
         }
     }
-
-    public FilmStorage getInMemoryFilmStorage() {
-        return inMemoryFilmStorage;
-    }
-
 }

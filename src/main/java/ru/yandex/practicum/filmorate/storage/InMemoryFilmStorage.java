@@ -30,12 +30,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film findFimById(Optional<Integer> id) {
-        if (!films.containsKey(id.get())) {
+    public Film findFimById(int id) {
+        if (!films.containsKey(id)) {
             throw new EntityNotFoundException("Нет фильма с ID: " + id);
         } else {
             log.info("Найден фильм под ID: {}", films.size());
-            return films.get(id.get());
+            return films.get(id);
         }
     }
 
@@ -52,9 +52,5 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private int incrementId() {
         return id++;
-    }
-
-    public Map<Integer, Film> getFilms() {
-        return films;
     }
 }

@@ -8,12 +8,13 @@ import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
-@NotNull
+
 public class Film {
     private int id;
     @NotEmpty(message = "Имя не содержит символов")
     private final String name;
     @Size(max = 200, message = "Описание максимум 200 символов")
+    @NotNull
     private final String description;
     @DataValidAnnotation(message = "Дата релиза — не раньше 28 декабря 1895 года")
     private final LocalDate releaseDate;
