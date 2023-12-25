@@ -21,16 +21,9 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler()
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validCountException(final MethodArgumentNotValidException e) {
-        log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
-        return new ErrorResponse("Ошибка валидации");
-    }
-
-    @ExceptionHandler()
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validException(final ConstraintViolationException e) {
+    public ErrorResponse validCountException(final RuntimeException e) {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }

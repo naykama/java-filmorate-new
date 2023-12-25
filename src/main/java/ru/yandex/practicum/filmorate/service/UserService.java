@@ -28,10 +28,12 @@ public class UserService {
     }
 
     public User post(User user) {
+        checkValidName(user);
         return userStorage.post(user);
     }
 
     public User put(User user) {
+        checkValidName(user);
         return userStorage.put(user);
     }
 
@@ -77,5 +79,11 @@ public class UserService {
         Collections.sort(arrayUser, new UserComparator());
         log.info("Выведены общине друзья пользователя");
         return arrayUser;
+    }
+
+    private void checkValidName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }

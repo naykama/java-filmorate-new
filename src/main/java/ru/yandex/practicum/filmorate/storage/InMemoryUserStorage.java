@@ -32,7 +32,6 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User post(User user) {
         user.setId(incrementId());
-        checkValidName(user);
         users.put(user.getId(), user);
         log.info("{} был добавлен к списку пользователей", user.getName());
         return user;
@@ -43,8 +42,6 @@ public class InMemoryUserStorage implements UserStorage {
         if (!users.containsKey(user.getId())) {
             throw new EntityNotFoundException("Нет пользователя с ID: " + id);
         } else {
-            checkValidName(user);
-            users.remove(user.getId());
             users.put(user.getId(), user);
             log.info("\"{}\" пользователь под данным id был обновлен", user.getName());
             return user;
@@ -53,12 +50,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     private int incrementId() {
         return id++;
-    }
-
-    private void checkValidName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
     }
 
 }

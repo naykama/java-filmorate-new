@@ -44,7 +44,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (!films.containsKey(film.getId())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Фильм с указанным ID не найден");
         }
-        films.remove(film.getId());
         films.put(film.getId(), film);
         log.info("{} обновлен", film.getId());
         return film;
