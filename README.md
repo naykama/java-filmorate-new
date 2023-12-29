@@ -3,7 +3,8 @@ Template repository for Filmorate project.
 
 https://dbdiagram.io/d/6589b8e389dea62799864990
 
-![Untitled (2)](https://github.com/mFurtov/java-filmorate/assets/139979986/37efb61f-c482-41a8-90c1-c2a5914483ec)
+![Untitled (4)](https://github.com/mFurtov/java-filmorate/assets/139979986/743ba7ab-7d17-4193-b1f1-58a22ee07872)
+
 
 
 
