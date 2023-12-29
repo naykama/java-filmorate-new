@@ -1,7 +1,10 @@
 # java-filmorate
 Template repository for Filmorate project.
 
-![Untitled](https://github.com/mFurtov/java-filmorate/assets/139979986/409adbab-567d-4709-b5a3-3cb26b2c7686)
+https://dbdiagram.io/d/6589b8e389dea62799864990
+
+![Untitled (1)](https://github.com/mFurtov/java-filmorate/assets/139979986/0e2ce3a7-154f-4d96-a4e5-eaefa43c6715)
+
 
 1. Вывести весь список фильмов: 
 ```sql
