@@ -3,7 +3,8 @@ Template repository for Filmorate project.
 
 https://dbdiagram.io/d/6589b8e389dea62799864990
 
-![Untitled (1)](https://github.com/mFurtov/java-filmorate/assets/139979986/0e2ce3a7-154f-4d96-a4e5-eaefa43c6715)
+![Untitled (2)](https://github.com/mFurtov/java-filmorate/assets/139979986/37efb61f-c482-41a8-90c1-c2a5914483ec)
+
 
 
 1. Вывести весь список фильмов: 
