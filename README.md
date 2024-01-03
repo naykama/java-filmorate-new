@@ -58,3 +58,13 @@ from users as u
 inner join film_liks as fl on u.id = fl.id_user 
 inner join films as f on fl.id_film  = f.id 
 ```
+
+8. Вывести списко запросов на дружбу:
+```sql
+select u.login,
+u2.login,
+fs.status 
+from users as u 
+inner join friendship_status as fs on u.id = fs.user_id 
+inner join users as u2 on fs.friend_id = u2.id
+```
