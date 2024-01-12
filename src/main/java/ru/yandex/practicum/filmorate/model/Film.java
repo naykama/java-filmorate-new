@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 
@@ -21,6 +22,9 @@ public class Film {
     @Positive(message = "Дата должна быть положительной")
     private final int duration;
     private int rate;
+    private Set<String> genre;
+
+    private Mpa mpa;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
