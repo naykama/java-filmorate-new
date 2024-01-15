@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +28,12 @@ public class ErrorHandler {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse notFoundException(final EmptyResultDataAccessException e) {
+        log.debug("Искомый объект не найден 404 Not found {}", e.getMessage());
+        return new ErrorResponse(e.getMessage());
+    }
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -34,5 +41,6 @@ public class ErrorHandler {
         log.debug("Произошла непредвиденная ошибка {}", e.getMessage());
         return new ErrorResponse("Произошла непредвиденная ошибка.");
     }
+
 
 }

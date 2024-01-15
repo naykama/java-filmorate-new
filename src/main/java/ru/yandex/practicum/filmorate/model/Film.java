@@ -19,7 +19,7 @@ public class Film {
     private final String description;
     @DataValidAnnotation(message = "Дата релиза — не раньше 28 декабря 1895 года")
     private final LocalDate releaseDate;
-    @Positive(message = "Дата должна быть положительной")
+    @Positive(message = "Продолжительность должна быть положительной")
     private final int duration;
     private int rate;
     private Set<String> genre;
