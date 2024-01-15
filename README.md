@@ -64,8 +64,15 @@ inner join films as f on fl.id_film  = f.id
 ```sql
 select u.login,
 u2.login,
-fs.status 
+fs.status
 from users as u 
 inner join friendship_status as fs on u.id = fs.user_id 
 inner join users as u2 on fs.friend_id = u2.id
+```
+9. Вывести друзей позьавателя:
+```sql
+select *
+from  users
+join friends on users.id = friends.friend_id
+where friends.user_id = 1;
 ```
