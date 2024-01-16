@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dao.FriendsUserDB;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -18,6 +19,7 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final UserDbStorage userDbStorage;
+    private final FriendsUserDB friendsUserDB;
 
     private static final List<User> users = new ArrayList<>();
 
@@ -46,22 +48,22 @@ public class UserController {
 
     @PutMapping(value = "/{id}/friends/{friendId}")
     public void addFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        userService.addFriends(id, friendId);
+        friendsUserDB.addFriends(id, friendId);
     }
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void dellFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        userService.dellFriends(id, friendId);
+        friendsUserDB.dellFriends(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Integer id) {
-        return userService.getFriends(id);
+        return friendsUserDB.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
-        return userService.getCommonFriends(id, otherId);
+        return friendsUserDB.getCommonFriends(id, otherId);
     }
 
 

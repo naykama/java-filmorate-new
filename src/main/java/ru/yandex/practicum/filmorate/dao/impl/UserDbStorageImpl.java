@@ -45,6 +45,7 @@ public class UserDbStorageImpl implements UserDbStorage {
 
     @Override
     public User post(User user) {
+        checkValidName(user);
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("users").usingGeneratedKeyColumns("id");
         Map<String, String> params = Map.of("email", user.getEmail(), "login", user.getLogin(), "name", user.getName(), "birthday", user.getBirthday().toString());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
@@ -56,6 +57,7 @@ public class UserDbStorageImpl implements UserDbStorage {
 
     @Override
     public User put(User user) {
+        checkValidName(user);
         String sqlFindUser = "select * from users where id = ?";
         String sqlUpdate = "update users set login = ?,name = ?, email=?,birthday =? where id = ?";
         User findUser;
@@ -71,8 +73,12 @@ public class UserDbStorageImpl implements UserDbStorage {
             return user;
         }
     }
-
     private RowMapper<User> userRowMapper() {
         return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email"), rs.getString("login"), rs.getString("name"), LocalDate.parse(rs.getString("birthday")));
+    }
+    private void checkValidName(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
     }
 }
