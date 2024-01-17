@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -15,18 +17,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/films")
 @Validated
+@RequiredArgsConstructor
 
 public class FilmController {
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
+    private final FilmDbStorage filmDbStorage;
 
     @GetMapping()
     public List<Film> findAll() {
-        return filmService.findAll();
+        return filmDbStorage.findAll();
     }
 
     @GetMapping("/{id}")
@@ -36,7 +35,7 @@ public class FilmController {
 
     @PostMapping()
     public Film post(@Valid @RequestBody Film film) {
-        return filmService.post(film);
+        return filmDbStorage.post(film);
     }
 
     @PutMapping()

@@ -6,10 +6,10 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-
 public class Film {
     private int id;
     @NotEmpty(message = "Имя не содержит символов")
@@ -22,8 +22,7 @@ public class Film {
     @Positive(message = "Продолжительность должна быть положительной")
     private final int duration;
     private int rate;
-    private Set<String> genre;
-
+    private List<Genre> genre;
     private Mpa mpa;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
@@ -33,5 +32,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = 0;
+        this.genre = new ArrayList<>();
+        this.mpa = new Mpa();
     }
 }
