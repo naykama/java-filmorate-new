@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 
 public class FilmController {
-    private final FilmService filmService;
     private final FilmDbStorage filmDbStorage;
 
     @GetMapping()
