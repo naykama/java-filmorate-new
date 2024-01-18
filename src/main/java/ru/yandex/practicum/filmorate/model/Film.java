@@ -22,7 +22,7 @@ public class Film {
     @Positive(message = "Продолжительность должна быть положительной")
     private final int duration;
     private int rate;
-    private List<Genre> genre;
+    private List<Genre> genres;
     private Mpa mpa;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
@@ -32,7 +32,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = 0;
-        this.genre = new ArrayList<>();
+        this.genres = new ArrayList<>();
         this.mpa = new Mpa();
     }
 }

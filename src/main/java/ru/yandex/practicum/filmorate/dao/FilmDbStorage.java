@@ -12,4 +12,10 @@ public interface FilmDbStorage {
     Film findFimById(int id);
 
     Film put(Film film);
+
+    List<Film> popular(int count);
+
+    void addLike(int id, int userId);
+
+    void dellLike(int id, int userId);
 }
