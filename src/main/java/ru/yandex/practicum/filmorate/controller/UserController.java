@@ -3,13 +3,10 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dao.FriendsUserDB;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -17,11 +14,8 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
-    private final UserDbStorage userDbStorage;
-    private final FriendsUserDB friendsUserDB;
 
-    private static final List<User> users = new ArrayList<>();
+    private final UserDbStorage userDbStorage;
 
     @GetMapping()
     public List<User> findAll() {
@@ -30,14 +24,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     public User findUserById(@PathVariable int id) {
-
-//        return userService.findUserById(id);
         return userDbStorage.findUserById(id);
     }
 
     @PostMapping()
     public User post(@Valid @RequestBody User user) {
-//        return userService.post(user);
         return userDbStorage.post(user);
     }
 
@@ -48,22 +39,22 @@ public class UserController {
 
     @PutMapping(value = "/{id}/friends/{friendId}")
     public void addFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        friendsUserDB.addFriends(id, friendId);
+        userDbStorage.addFriends(id, friendId);
     }
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void dellFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        friendsUserDB.dellFriends(id, friendId);
+        userDbStorage.dellFriends(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Integer id) {
-        return friendsUserDB.getFriends(id);
+        return userDbStorage.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
-        return friendsUserDB.getCommonFriends(id, otherId);
+        return userDbStorage.getCommonFriends(id, otherId);
     }
 
 

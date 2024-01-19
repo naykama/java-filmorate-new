@@ -1,10 +1,12 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FriendsUserDB;
 import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -14,32 +16,24 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class UserDbStorageImpl implements UserDbStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorageImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private final FriendsUserDB friendsUserDB;
 
     @Override
     public List<User> findAll() {
-        String sql = "select * from users";
+        String sql = "select * from users order by id";
         return jdbcTemplate.query(sql, userRowMapper());
     }
 
     @Override
     public User findUserById(int id) {
-        String sql = "select * from users where id = ?";
-        User findUser;
+        String sql = "select * from users where id = ? order by id";
         try {
-            findUser = jdbcTemplate.queryForObject(sql, userRowMapper(), id);
+            return jdbcTemplate.queryForObject(sql, userRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
-            findUser = null;
-        }
-        if (findUser == null) {
             throw new EntityNotFoundException("Нет пользователя с ID: " + id);
-        } else {
-            return findUser;
         }
     }
 
@@ -51,31 +45,41 @@ public class UserDbStorageImpl implements UserDbStorage {
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         user.setId(id.intValue());
         return user;
-
-
     }
 
     @Override
     public User put(User user) {
         checkValidName(user);
-        String sqlFindUser = "select * from users where id = ?";
+        User findUser = findUserById(user.getId());
         String sqlUpdate = "update users set login = ?,name = ?, email=?,birthday =? where id = ?";
-        User findUser;
-        try {
-            findUser = jdbcTemplate.queryForObject(sqlFindUser, userRowMapper(), user.getId());
-        } catch (EmptyResultDataAccessException e) {
-            findUser = null;
-        }
-        if (findUser == null) {
-            throw new EntityNotFoundException("Нет пользователя с ID: " + user.getId());
-        } else {
-            jdbcTemplate.update(sqlUpdate, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(), user.getId());
-            return user;
-        }
+        jdbcTemplate.update(sqlUpdate, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(), user.getId());
+        return user;
     }
+
+    @Override
+    public void addFriends(Integer id, Integer friendId) {
+        friendsUserDB.addFriends(id, friendId);
+    }
+
+    @Override
+    public void dellFriends(Integer id, Integer friendId) {
+        friendsUserDB.dellFriends(id, friendId);
+    }
+
+    @Override
+    public List<User> getFriends(Integer id) {
+        return friendsUserDB.getFriends(id);
+    }
+
+    @Override
+    public List<User> getCommonFriends(Integer id, Integer otherId) {
+        return friendsUserDB.getCommonFriends(id, otherId);
+    }
+
     private RowMapper<User> userRowMapper() {
         return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email"), rs.getString("login"), rs.getString("name"), LocalDate.parse(rs.getString("birthday")));
     }
+
     private void checkValidName(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());

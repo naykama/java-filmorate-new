@@ -28,6 +28,7 @@ public class ErrorHandler {
         log.debug("Ошибка валидации 400 Bad request {}", e.getMessage());
         return new ErrorResponse("Ошибка валидации");
     }
+
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse notFoundException(final EmptyResultDataAccessException e) {

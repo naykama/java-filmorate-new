@@ -27,54 +27,13 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     @Override
     public List<Film> findAll() {
-        String sql = "select * from films";
+        String sql = "select * from films order by id";
         return jdbcTemplate.query(sql, filmRowMapper());
     }
 
     @Override
-    public Film post(Film film) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                .withTableName("films")
-                .usingGeneratedKeyColumns("id");
-
-        String mpaName = jdbcTemplate.queryForObject(
-                "SELECT name FROM mpa WHERE id = ?",
-                (rs, rowNum) -> (rs.getString("name")),
-                film.getMpa().getId()
-        );
-
-        film.getMpa().setName(mpaName);
-
-        for (int i = 0; i < film.getGenres().size(); i++) {
-            if(!film.getGenres().contains(film.getGenres().get(i))) {
-                film.getGenres().get(i).setName(genresAdd(film.getGenres().get(i).getId()));
-            }
-        }
-
-        Map<String, Object> params = Map.of(
-                "name", film.getName(),
-                "description", film.getDescription(),
-                "release_date", film.getReleaseDate().toString(),
-                "duration", film.getDuration(),
-                "rate", film.getRate(),
-                "mpa", film.getMpa().getId()
-        );
-
-        Number id = simpleJdbcInsert.executeAndReturnKey(params);
-        film.setId(id.intValue());
-
-        String sqlDell= "DELETE FROM filme_genres WHERE film_id = ?";
-        jdbcTemplate.update(sqlDell,film.getId());
-        for (Genre genre : film.getGenres()) {
-            insertGenreForFilm(film.getId(), genre.getId());
-        }
-        film.setGenres(addGenresList(film.getId()));
-        return film;
-    }
-
-    @Override
     public Film findFimById(int id) {
-        String sql = "select * from films where id = ?";
+        String sql = "select * from films where id = ? order by id";
         try {
             return jdbcTemplate.queryForObject(sql, filmRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
@@ -83,38 +42,24 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     @Override
-    public Film put(Film film) {
-        String sqlFindFilm = "select * from films where id = ?";
-        String sqlUpdate = "update films set  name = ?, description = ?,release_date = ?,duration = ?,rate = ?, mpa = ? where id = ?";
-        Film findFilm;
-        try {
-            findFilm = jdbcTemplate.queryForObject(sqlFindFilm, filmRowMapper(), film.getId());
-        } catch (EmptyResultDataAccessException e) {
-            findFilm = null;
-        }
-        if (findFilm == null) {
-            throw new EntityNotFoundException("Нет фильма с ID: " + film.getId());
-        }
-//        for (int i = 0; i < film.getGenres().size(); i++) {
-//            if(!film.getGenres().contains(film.getGenres().get(i))) {
-//                film.getGenres().get(i).setName(genresAdd(film.getGenres().get(i).getId()));
-//            }
-//        }
-        jdbcTemplate.update(sqlUpdate, film.getName()
-                , film.getDescription()
-                , film.getReleaseDate()
-                , film.getDuration()
-                , film.getRate()
-                , film.getMpa().getId()
-                , film.getId());
+    public Film post(Film film) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
+        Map<String, Object> params = Map.of("name", film.getName(), "description", film.getDescription(), "release_date", film.getReleaseDate().toString(), "duration", film.getDuration(), "rate", film.getRate(), "mpa", film.getMpa().getId());
+        Number id = simpleJdbcInsert.executeAndReturnKey(params);
+        film.setId(id.intValue());
+        setGenresForFilm(film);
+        return film;
+    }
 
-        String sqlDell= "DELETE FROM filme_genres WHERE film_id = ?";
-        jdbcTemplate.update(sqlDell,film.getId());
-        for (Genre genre : film.getGenres()) {
-            insertGenreForFilm(film.getId(), genre.getId());
-        }
-        film.setGenres(addGenresList(film.getId()));
+
+    @Override
+    public Film put(Film film) {
+        String sqlUpdate = "update films set  name = ?, description = ?,release_date = ?,duration = ?,rate = ?, mpa = ? where id = ?";
+        Film findFilm = findFimById(film.getId());
+        jdbcTemplate.update(sqlUpdate, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
+        film.setMpa(updateMpa(film.getMpa().getId()));
+        setGenresForFilm(film);
         return film;
     }
 
@@ -128,20 +73,13 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     private RowMapper<Film> filmRowMapper() {
-        return (rs, rowNum)
-                -> {
-            Film film = new Film(rs.getInt("id")
-                    , rs.getString("name")
-                    , rs.getString("description")
-                    , LocalDate.parse(rs.getString("release_date")),
-                    rs.getInt("duration"));
+        return (rs, rowNum) -> {
+            Film film = new Film(rs.getInt("id"), rs.getString("name"), rs.getString("description"), LocalDate.parse(rs.getString("release_date")), rs.getInt("duration"));
             int mpaId = rs.getInt("mpa");
             film.setRate(rs.getInt("rate"));
             List<Genre> genreList = addGenresList(film.getId());
             film.setGenres(genreList);
-            if (mpaId != 0) {
-                film.setMpa(updateMpa(mpaId));
-            }
+            film.setMpa(updateMpa(mpaId));
             return film;
         };
     }
@@ -166,30 +104,28 @@ public class FilmDbStorageImpl implements FilmDbStorage {
 
     private Mpa updateMpa(int mpaId) {
         Mpa newMpa = new Mpa();
-        String mpaName = jdbcTemplate.queryForObject(
-                "SELECT name FROM mpa WHERE id = ?",
-                new Integer[]{mpaId},
-                String.class
-        );
+        String mpaName = jdbcTemplate.queryForObject("SELECT name FROM mpa WHERE id = ?", new Integer[]{mpaId}, String.class);
         newMpa.setId(mpaId);
         newMpa.setName(mpaName);
         return newMpa;
     }
 
-    private String genresAdd(int id) {
-        return jdbcTemplate.queryForObject(
-                "SELECT name FROM genres WHERE id = ?",
-                (rs, rowNum) -> (rs.getString("name")),
-                id);
+    private List<Genre> addGenresList(int id) {
+        String sql = "select * from genres g inner join filme_genres fg on fg.genre_id =g.id where fg.film_id = ?";
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Genre(rs.getInt("id"), rs.getString("name")), id);
     }
 
-    private List<Genre> addGenresList(int id){
-        String sql = "select * from genres g inner join filme_genres fg on fg.genre_id =g.id where fg.film_id = ?";
-        return jdbcTemplate.query(sql,(rs, rowNum) -> new Genre(rs.getInt("id")
-                ,rs.getString("name") ),id);
+    private void setGenresForFilm(Film film) {
+        String sqlDell = "DELETE FROM filme_genres WHERE film_id = ?";
+        jdbcTemplate.update(sqlDell, film.getId());
+        for (Genre genre : film.getGenres()) {
+            insertGenreForFilm(film.getId(), genre.getId());
+        }
+        film.setGenres(addGenresList(film.getId()));
     }
+
     private void insertGenreForFilm(int idFilm, int idGenre) {
         String sql = "insert into filme_genres (film_id,genre_id) values (?,?) on conflict do nothing";
-        jdbcTemplate.update(sql,idFilm,idGenre);
+        jdbcTemplate.update(sql, idFilm, idGenre);
     }
 }
