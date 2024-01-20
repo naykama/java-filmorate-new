@@ -44,6 +44,6 @@ class GenresDbStorageImplTest {
         Genre genre = genresDbStorage.genresFindForId(2);
         assertNotNull(genre);
         assertEquals(genre.getId(), 2);
-        assertEquals(genre.getName(),"Драма");
+        assertEquals(genre.getName(), "Драма");
     }
 }
