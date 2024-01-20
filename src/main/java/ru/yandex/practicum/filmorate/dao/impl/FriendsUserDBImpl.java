@@ -49,9 +49,7 @@ public class FriendsUserDBImpl implements FriendsUserDB {
     }
 
     private RowMapper<User> userRowMapper() {
-        return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email")
-                , rs.getString("login"), rs.getString("name")
-                , LocalDate.parse(rs.getString("birthday")));
+        return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email"), rs.getString("login"), rs.getString("name"), LocalDate.parse(rs.getString("birthday")));
     }
 
     private boolean userIsExist(int id) {
