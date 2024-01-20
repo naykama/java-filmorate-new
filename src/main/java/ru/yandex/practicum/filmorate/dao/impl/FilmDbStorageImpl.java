@@ -125,7 +125,7 @@ public class FilmDbStorageImpl implements FilmDbStorage {
     }
 
     private void insertGenreForFilm(int idFilm, int idGenre) {
-        String sql = "insert into filme_genres (film_id,genre_id) values (?,?) on conflict do nothing";
-        jdbcTemplate.update(sql, idFilm, idGenre);
+        String sql = "insert into filme_genres (film_id, genre_id) select ?, ? where not exists (select 1 from filme_genres where film_id = ? and genre_id = ?)";
+        jdbcTemplate.update(sql, idFilm, idGenre, idFilm, idGenre);
     }
 }
