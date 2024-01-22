@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -15,46 +15,46 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserDbStorage userDbStorage;
+    private final UserService userService;
 
     @GetMapping()
     public List<User> findAll() {
-        return userDbStorage.findAll();
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     public User findUserById(@PathVariable int id) {
-        return userDbStorage.findUserById(id);
+        return userService.findUserById(id);
     }
 
     @PostMapping()
     public User post(@Valid @RequestBody User user) {
-        return userDbStorage.post(user);
+        return userService.post(user);
     }
 
     @PutMapping()
     public User put(@Valid @RequestBody User user) {
-        return userDbStorage.put(user);
+        return userService.put(user);
     }
 
     @PutMapping(value = "/{id}/friends/{friendId}")
     public void addFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        userDbStorage.addFriends(id, friendId);
+        userService.addFriends(id, friendId);
     }
 
     @DeleteMapping(value = "/{id}/friends/{friendId}")
     public void dellFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
-        userDbStorage.dellFriends(id, friendId);
+        userService.dellFriends(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable Integer id) {
-        return userDbStorage.getFriends(id);
+        return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
-        return userDbStorage.getCommonFriends(id, otherId);
+        return userService.getCommonFriends(id, otherId);
     }
 
 

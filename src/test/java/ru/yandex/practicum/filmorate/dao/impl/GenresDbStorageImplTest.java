@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.GenresDbStorage;
+import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.List;
@@ -21,7 +21,7 @@ class GenresDbStorageImplTest {
 
     @Test
     void genresFindAll() {
-        GenresDbStorage genresDbStorage = new GenresDbStorageImpl(jdbcTemplate);
+        GenresStorage genresDbStorage = new GenresDbStorageImpl(jdbcTemplate);
         List<Genre> genreList = genresDbStorage.genresFindAll();
         assertTrue(genreList.size() == 6);
         assertEquals(genreList.get(0).getId(), 1);
@@ -40,7 +40,7 @@ class GenresDbStorageImplTest {
 
     @Test
     void genresFindForId() {
-        GenresDbStorage genresDbStorage = new GenresDbStorageImpl(jdbcTemplate);
+        GenresStorage genresDbStorage = new GenresDbStorageImpl(jdbcTemplate);
         Genre genre = genresDbStorage.genresFindForId(2);
         assertNotNull(genre);
         assertEquals(genre.getId(), 2);

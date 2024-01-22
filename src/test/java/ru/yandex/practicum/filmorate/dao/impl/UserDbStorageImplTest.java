@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class UserDbStorageImplTest {
     private final JdbcTemplate jdbcTemplate;
-    private final FriendsUserDBImpl friendsUserDB;
+    private final FriendsDbUserImpl friendsUserDB;
 
     @Test
     void findAllTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.post(newUserTwo);
         List<User> userList = userStorage.findAll();
@@ -40,7 +40,7 @@ class UserDbStorageImplTest {
     @Test
     void findUserByIdTest() {
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUser);
         User savedUser = userStorage.findUserById(1);
         assertThat(savedUser).isNotNull().usingRecursiveComparison().isEqualTo(newUser);
@@ -51,7 +51,7 @@ class UserDbStorageImplTest {
     @Test
     void postTest() {
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUser);
         User savedUser = userStorage.findUserById(1);
         assertNotNull(savedUser);
@@ -63,7 +63,7 @@ class UserDbStorageImplTest {
     void putTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(1, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.put(newUserTwo);
         User savedUser = userStorage.findUserById(1);
@@ -74,7 +74,7 @@ class UserDbStorageImplTest {
     void addFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.post(newUserTwo);
         userStorage.addFriends(1, 2);
@@ -88,7 +88,7 @@ class UserDbStorageImplTest {
     void dellFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.post(newUserTwo);
         userStorage.addFriends(1, 2);
@@ -102,7 +102,7 @@ class UserDbStorageImplTest {
     void getFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.post(newUserTwo);
         userStorage.addFriends(1, 2);
@@ -117,7 +117,7 @@ class UserDbStorageImplTest {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
         User newUserThree = new User(3, "user3@email.ru", "koliy123", "Kolia Fedorov", LocalDate.of(1998, 2, 22));
-        UserDbStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate, friendsUserDB);
         userStorage.post(newUserOne);
         userStorage.post(newUserTwo);
         userStorage.post(newUserThree);

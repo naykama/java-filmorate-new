@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
 
-public interface FriendsUserDB {
+public interface FriendsUser {
     void addFriends(int id, int friendsId);
 
     void dellFriends(Integer id, Integer friendsId);

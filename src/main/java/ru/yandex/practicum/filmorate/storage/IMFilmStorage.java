@@ -4,7 +4,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
 
-public interface FilmStorage {
+public interface IMFilmStorage {
     List<Film> findAll();
 
     Film post(Film film);
@@ -12,5 +12,4 @@ public interface FilmStorage {
     Film findFimById(int id);
 
     Film put(Film film);
-
 }

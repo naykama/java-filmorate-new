@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.MpaDbStorage;
+import ru.yandex.practicum.filmorate.dao.MpaStorage;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
@@ -21,7 +21,7 @@ class MpaDbStorageImplTest {
 
     @Test
     void findMpaForIdTest() {
-        MpaDbStorage mpaDbStorage = new MpaDbStorageImpl(jdbcTemplate);
+        MpaStorage mpaDbStorage = new MpaDbStorageImpl(jdbcTemplate);
         Mpa mpaG = mpaDbStorage.findMpaForId(1);
         Mpa mpaPG = mpaDbStorage.findMpaForId(2);
         assertEquals(mpaG.getId(), 1);
@@ -32,7 +32,7 @@ class MpaDbStorageImplTest {
 
     @Test
     void mpaFindAll() {
-        MpaDbStorage mpaDbStorage = new MpaDbStorageImpl(jdbcTemplate);
+        MpaStorage mpaDbStorage = new MpaDbStorageImpl(jdbcTemplate);
         List<Mpa> mpaList = mpaDbStorage.mpaFindAll();
         assertTrue(mpaList.size() == 5);
         assertEquals(mpaList.get(0).getId(), 1);

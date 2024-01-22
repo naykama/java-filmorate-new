@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FriendsUserDB;
+import ru.yandex.practicum.filmorate.dao.FriendsUser;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FriendsUserDBImpl implements FriendsUserDB {
+public class FriendsDbUserImpl implements FriendsUser {
     private final JdbcTemplate jdbcTemplate;
 
     @Override

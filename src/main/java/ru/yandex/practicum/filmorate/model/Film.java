@@ -6,8 +6,8 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Objects;
 
 @Data
 public class Film {
@@ -22,7 +22,8 @@ public class Film {
     @Positive(message = "Продолжительность должна быть положительной")
     private final int duration;
     private int rate;
-    private List<Genre> genres;
+    private LinkedHashSet<Genre> genres;
+    @NotNull
     private Mpa mpa;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
@@ -32,7 +33,20 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.rate = 0;
-        this.genres = new ArrayList<>();
+        this.genres = new LinkedHashSet<>();
         this.mpa = new Mpa();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Film)) return false;
+        Film film = (Film) o;
+        return id == film.id && duration == film.duration && rate == film.rate && Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(genres, film.genres) && Objects.equals(mpa, film.mpa);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, releaseDate, duration, rate, genres, mpa);
     }
 }

@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Mpa {
-    int id;
-    String name;
+    private int id;
+    private String name;
 
     public Mpa(int id, String name) {
         this.id = id;

@@ -9,7 +9,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryUserStorage implements UserStorage {
+public class InMemoryUserStorage implements IMUserStorage {
     private int id = 1;
     private final Map<Integer, User> users = new HashMap<>();
 
