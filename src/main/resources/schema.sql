@@ -6,7 +6,7 @@ CREATE table IF NOT EXISTS films (
   description varchar(200) NOT NULL,
   release_date DATE,
   duration integer,
-  rate integer default 0,
+  rate integer,
   mpa integer
 );
 

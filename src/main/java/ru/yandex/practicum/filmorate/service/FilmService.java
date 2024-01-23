@@ -19,7 +19,6 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
-    private final JdbcTemplate jdbcTemplate;
 
     public List<Film> findAll() {
         List<Film> filmList = filmStorage.findAll();
@@ -46,20 +45,12 @@ public class FilmService {
     }
 
     public void addLike(int id, int userId) {
-        String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
-        String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
-        Film filmLik = findFimById(id);
         User userLike = userStorage.findUserById(userId);
-        jdbcTemplate.update(sqlInsert, userId, id);
-        jdbcTemplate.update(sqlUpdate, id);
+        filmStorage.addLike(id, userId);
     }
 
     public void dellLike(int id, int userId) {
-        String sqlDell = "DELETE FROM film_liks WHERE id_user = ? AND id_film = ?";
-        String sqlUpdate = "update films set rate = (rate - 1) where id = ?";
-        Film filmLik = findFimById(id);
         User userLike = userStorage.findUserById(userId);
-        jdbcTemplate.update(sqlDell, userId, id);
-        jdbcTemplate.update(sqlUpdate, id);
+        filmStorage.dellLike(id, userId);
     }
 }

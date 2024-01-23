@@ -49,8 +49,10 @@ public class FilmDbStorageImpl implements FilmStorage {
     public Film post(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
+        film.setRate(0);
         Map<String, Object> params = Map.of("name", film.getName(), "description", film.getDescription(), "release_date", film.getReleaseDate().toString(), "duration", film.getDuration(), "rate", film.getRate(), "mpa", film.getMpa().getId());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
+        film.setRate(0);
         film.setId(id.intValue());
         setGenresForFilm(film);
         return film;
@@ -75,6 +77,22 @@ public class FilmDbStorageImpl implements FilmStorage {
         } else {
             return jdbcTemplate.query(sql, filmRowMapper(), count);
         }
+    }
+
+    public void addLike(int id, int userId) {
+        String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
+        String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
+        Film filmLik = findFimById(id);
+        jdbcTemplate.update(sqlInsert, userId, id);
+        jdbcTemplate.update(sqlUpdate, id);
+    }
+
+    public void dellLike(int id, int userId) {
+        String sqlDell = "DELETE FROM film_liks WHERE id_user = ? AND id_film = ?";
+        String sqlUpdate = "update films set rate = (rate - 1) where id = ?";
+        Film filmLik = findFimById(id);
+        jdbcTemplate.update(sqlDell, userId, id);
+        jdbcTemplate.update(sqlUpdate, id);
     }
 
 
@@ -110,7 +128,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         insertGenresForFilm(batchList);
     }
 
-    public void insertGenresForFilm(List<Object[]> batchUpdate) {
+    private void insertGenresForFilm(List<Object[]> batchUpdate) {
         String sql = "insert into filme_genres (film_id, genre_id) select ?, ? where not exists (select 1 from filme_genres where film_id = ? and genre_id = ?)";
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {

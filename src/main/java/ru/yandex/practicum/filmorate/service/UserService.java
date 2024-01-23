@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FriendsUser;
+import ru.yandex.practicum.filmorate.dao.FriendsUserStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage userStorage;
-    private final FriendsUser friendsUser;
+    private final FriendsUserStorage friendsUserStorage;
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -35,19 +35,19 @@ public class UserService {
     }
 
     public void addFriends(Integer id, Integer friendId) {
-        friendsUser.addFriends(id, friendId);
+        friendsUserStorage.addFriends(id, friendId);
     }
 
     public void dellFriends(Integer id, Integer friendId) {
-        friendsUser.dellFriends(id, friendId);
+        friendsUserStorage.dellFriends(id, friendId);
     }
 
     public List<User> getFriends(Integer id) {
-        return friendsUser.getFriends(id);
+        return friendsUserStorage.getFriends(id);
     }
 
     public List<User> getCommonFriends(Integer id, Integer otherId) {
-        return friendsUser.getCommonFriends(id, otherId);
+        return friendsUserStorage.getCommonFriends(id, otherId);
     }
 
     private void checkValidName(User user) {

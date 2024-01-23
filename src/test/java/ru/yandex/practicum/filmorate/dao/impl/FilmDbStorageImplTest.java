@@ -96,7 +96,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         Mpa mpaTwo = new Mpa(2, "PG");
         Mpa mpaThree = new Mpa(3, "G");
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,jdbcTemplate);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         filmThree.setMpa(mpaThree);
@@ -127,7 +127,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,jdbcTemplate);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -144,7 +144,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,jdbcTemplate);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
