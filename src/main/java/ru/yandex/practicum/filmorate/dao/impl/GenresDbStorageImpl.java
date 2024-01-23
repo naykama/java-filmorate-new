@@ -44,7 +44,6 @@ public class GenresDbStorageImpl implements GenresStorage {
     }
 
     public void load(List<Film> films) {
-        {
             final Map<Integer, Film> filmById = films.stream().collect(Collectors.toMap(Film::getId, identity()));
             String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
             final String sqlQuery = "select * from GENRES g, FILME_GENRES fg where fg.GENRE_ID = g.ID  AND fg.FILM_ID  in (" + inSql + ")";
@@ -53,7 +52,6 @@ public class GenresDbStorageImpl implements GenresStorage {
                 film.getGenres().add(makeGenre(rs, 0));
                 return film;
             }, films.stream().map(Film::getId).toArray());
-        }
     }
 
     private Genre makeGenre(ResultSet rs, int columnIndex) throws SQLException {
