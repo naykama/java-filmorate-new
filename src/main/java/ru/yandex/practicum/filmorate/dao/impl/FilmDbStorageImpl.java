@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,26 +13,23 @@ import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final UserService userService;
 
     @Override
     public List<Film> findAll() {
         String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by f.id";
         List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper());
-        addGenresList(filmList);
         return filmList;
     }
 
@@ -40,9 +38,9 @@ public class FilmDbStorageImpl implements FilmStorage {
         String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id where f.id = ? order by f.id";
         try {
             List<Film> filmList = List.of(jdbcTemplate.queryForObject(sql, filmRowMapper(), id));
-            addGenresList(filmList);
             return filmList.get(0);
         } catch (EmptyResultDataAccessException e) {
+            log.error("Ошибка поиска фильма с id \"{}\"", id);
             throw new EntityNotFoundException("Нет фильма с id: " + id);
         }
     }
@@ -51,7 +49,6 @@ public class FilmDbStorageImpl implements FilmStorage {
     public Film post(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
-        film.setRate(0);
         Map<String, Object> params = Map.of("name", film.getName(), "description", film.getDescription(), "release_date", film.getReleaseDate().toString(), "duration", film.getDuration(), "rate", film.getRate(), "mpa", film.getMpa().getId());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         film.setId(id.intValue());
@@ -93,30 +90,6 @@ public class FilmDbStorageImpl implements FilmStorage {
         };
     }
 
-    private void addGenresList(List<Film> filmList) {
-        Map<Integer, List<Genre>> genreMap = new HashMap<>();
-        List<Integer> filmId = new ArrayList<>();
-        for (Film film : filmList) {
-            filmId.add(film.getId());
-        }
-        String inSql = String.join(",", Collections.nCopies(filmId.size(), "?"));
-        String sql = "select * from genres g inner join filme_genres fg on fg.genre_id =g.id where fg.film_id in (%s)";
-        jdbcTemplate.query(String.format(sql, inSql), filmId.toArray(), (RowMapper<Film>) (rs, rowNum) -> {
-            int filmIdKey = rs.getInt("film_id");
-            int genreId = rs.getInt("id");
-            String genreName = rs.getString("name");
-            genreMap.computeIfAbsent(filmIdKey, key -> new ArrayList<>()).add(new Genre(genreId, genreName));
-            return null;
-        });
-        for (Film film : filmList) {
-            if (genreMap.isEmpty()) {
-                film.setGenres(new LinkedHashSet<>());
-            } else {
-                film.setGenres(new LinkedHashSet<>(genreMap.get(film.getId())));
-            }
-        }
-    }
-
     private Mpa updateMpa(int mpaId) {
         Mpa newMpa = new Mpa();
         String mpaName = jdbcTemplate.queryForObject("SELECT name FROM mpa WHERE id = ?", new Integer[]{mpaId}, String.class);
@@ -125,28 +98,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         return newMpa;
     }
 
-    public void addLike(int idFilm, int idUser) {
-        String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
-        String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
-        Film filmLik = findFimById(idFilm);
-        User userLike = userService.findUserById(idUser);
-        jdbcTemplate.update(sqlInsert, idUser, idFilm);
-        jdbcTemplate.update(sqlUpdate, idFilm);
-    }
-
-    public void dellLike(int idFilm, int idUser) {
-        String sqlDell = "DELETE FROM film_liks WHERE id_user = ? AND id_film = ?";
-        String sqlUpdate = "update films set rate = (rate - 1) where id = ?";
-        Film filmLik = findFimById(idFilm);
-        User userLike = userService.findUserById(idUser);
-        jdbcTemplate.update(sqlDell, idUser, idFilm);
-        jdbcTemplate.update(sqlUpdate, idFilm);
-    }
-
-
     private void setGenresForFilm(Film film) {
         String sqlDell = "DELETE FROM filme_genres WHERE film_id = ?";
-        jdbcTemplate.update(sqlDell, film.getId());
         jdbcTemplate.update(sqlDell, film.getId());
 
         List<Object[]> batchList = new ArrayList<>();
@@ -155,8 +108,6 @@ public class FilmDbStorageImpl implements FilmStorage {
             batchList.add(new Object[]{film.getId(), genre.getId()});
         }
         insertGenresForFilm(batchList);
-        List<Film> listFilm = List.of(film);
-        addGenresList(listFilm);
     }
 
     public void insertGenresForFilm(List<Object[]> batchUpdate) {

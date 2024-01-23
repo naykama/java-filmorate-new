@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendsDbUserImpl implements FriendsUser {
@@ -22,6 +24,7 @@ public class FriendsDbUserImpl implements FriendsUser {
             String sql = "insert into friends (user_id,friend_id) values (?,?)";
             jdbcTemplate.update(sql, id, friendsId);
         } else {
+            log.error("Один из пользователей не найден \"{}\",\"{}\"", id, friendsId);
             throw new EntityNotFoundException("Указан пользователь с несуществующим id");
         }
     }
@@ -44,6 +47,7 @@ public class FriendsDbUserImpl implements FriendsUser {
         if (userIsExist(id) && userIsExist(otherId)) {
             return jdbcTemplate.query(sql, userRowMapper(), id, otherId);
         } else {
+            log.error("Один из пользователей не найден \"{}\",\"{}\"", id, otherId);
             throw new EntityNotFoundException("Указан пользователь с несуществующим id");
         }
     }

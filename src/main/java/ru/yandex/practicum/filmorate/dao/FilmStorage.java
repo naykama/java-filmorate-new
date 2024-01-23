@@ -15,7 +15,4 @@ public interface FilmStorage {
 
     List<Film> popular(int count);
 
-    void addLike(int id, int userId);
-
-    void dellLike(int id, int userId);
 }

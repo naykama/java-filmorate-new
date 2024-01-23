@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MpaDbStorageImpl implements MpaStorage {
@@ -23,6 +25,7 @@ public class MpaDbStorageImpl implements MpaStorage {
         try {
             return jdbcTemplate.queryForObject(sql, mpaRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
+            log.error("Ошибка номера рейтинга \"{}\"", id);
             throw new EntityNotFoundException("Нет рейтинга с id: " + id);
         }
     }

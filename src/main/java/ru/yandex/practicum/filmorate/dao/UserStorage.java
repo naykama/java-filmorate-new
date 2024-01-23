@@ -14,11 +14,4 @@ public interface UserStorage {
 
     User put(User user);
 
-    void addFriends(Integer id, Integer friendId);
-
-    void dellFriends(Integer id, Integer friendId);
-
-    List<User> getFriends(Integer id);
-
-    List<User> getCommonFriends(Integer id, Integer otherId);
 }

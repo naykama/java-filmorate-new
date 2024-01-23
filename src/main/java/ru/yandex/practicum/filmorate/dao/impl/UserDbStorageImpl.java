@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.FriendsUser;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,11 +15,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserDbStorageImpl implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final FriendsUser friendsUser;
 
     @Override
     public List<User> findAll() {
@@ -33,6 +33,7 @@ public class UserDbStorageImpl implements UserStorage {
         try {
             return jdbcTemplate.queryForObject(sql, userRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
+            log.error("Ошибка поиска пользователя \"{}\"", id);
             throw new EntityNotFoundException("Нет пользователя с ID: " + id);
         }
     }
@@ -52,26 +53,6 @@ public class UserDbStorageImpl implements UserStorage {
         String sqlUpdate = "update users set login = ?,name = ?, email=?,birthday =? where id = ?";
         jdbcTemplate.update(sqlUpdate, user.getLogin(), user.getName(), user.getEmail(), user.getBirthday(), user.getId());
         return user;
-    }
-
-    @Override
-    public void addFriends(Integer id, Integer friendId) {
-        friendsUser.addFriends(id, friendId);
-    }
-
-    @Override
-    public void dellFriends(Integer id, Integer friendId) {
-        friendsUser.dellFriends(id, friendId);
-    }
-
-    @Override
-    public List<User> getFriends(Integer id) {
-        return friendsUser.getFriends(id);
-    }
-
-    @Override
-    public List<User> getCommonFriends(Integer id, Integer otherId) {
-        return friendsUser.getCommonFriends(id, otherId);
     }
 
     private RowMapper<User> userRowMapper() {
