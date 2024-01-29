@@ -5,10 +5,6 @@ import lombok.Data;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Data
 public class User {
@@ -23,8 +19,6 @@ public class User {
     @NotNull
     @PastOrPresent(message = "Дата рождения не может быть в будущем")
     private final LocalDate birthday;
-    private Set<Integer> friends;
-    private List<Film> filmsLike;
 
 
     public User(int id, String email, String login, String name, LocalDate birthday) {
@@ -33,8 +27,5 @@ public class User {
         this.login = login;
         this.name = name;
         this.birthday = birthday;
-        this.friends = new HashSet<>();
-        this.filmsLike = new ArrayList<>();
     }
-
 }

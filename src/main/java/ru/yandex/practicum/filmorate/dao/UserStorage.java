@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storage;
-
+package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
 public interface UserStorage {
+
     List<User> findAll();
 
     User findUserById(int id);
@@ -13,4 +13,5 @@ public interface UserStorage {
     User post(User user);
 
     User put(User user);
+
 }
