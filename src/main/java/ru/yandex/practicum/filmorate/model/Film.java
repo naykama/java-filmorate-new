@@ -2,12 +2,14 @@ package ru.yandex.practicum.filmorate.model;
 
 
 import lombok.Data;
+import org.springframework.stereotype.Service;
 
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -25,6 +27,7 @@ public class Film {
     private LinkedHashSet<Genre> genres;
     @NotNull
     private Mpa mpa;
+    private Set<Director> directors;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
@@ -35,6 +38,7 @@ public class Film {
         this.rate = 0;
         this.genres = new LinkedHashSet<>();
         this.mpa = new Mpa();
+        this.directors = new LinkedHashSet<>();
     }
 
     @Override
