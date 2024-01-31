@@ -18,4 +18,6 @@ public interface FilmStorage {
     void addLike(int id, int userId);
 
     void dellLike(int id, int userId);
+
+    List<Film> commonFilms(int userId, int friendId);
 }

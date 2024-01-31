@@ -52,4 +52,10 @@ public class FilmService {
         User userLike = userStorage.findUserById(userId);
         filmStorage.dellLike(id, userId);
     }
+
+    public List<Film> commonFilms(int userId, int friendId) {
+        User user = userStorage.findUserById(userId);
+        User friend = userStorage.findUserById(friendId);
+        return filmStorage.commonFilms(userId, friendId);
+    }
 }
