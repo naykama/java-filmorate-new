@@ -71,7 +71,9 @@ public class FilmController {
 
     @GetMapping("/common")
     public List<Film> commonFilms(@RequestParam int userId, @RequestParam int friendId) {
-        return filmService.commonFilms(userId, friendId);
+        List<Film> filmList = filmService.commonFilms(userId, friendId);
+        log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId, friendId, filmList.size());
+        return filmList;
     }
 
 }
