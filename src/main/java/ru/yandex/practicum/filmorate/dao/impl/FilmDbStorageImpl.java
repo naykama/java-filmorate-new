@@ -152,4 +152,10 @@ public class FilmDbStorageImpl implements FilmStorage {
         String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ? INNER JOIN mpa m ON m.id = f.mpa ORDER BY f.rate DESC";
         return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
     }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        return null;
+    }
+
 }

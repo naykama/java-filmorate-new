@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -73,6 +74,13 @@ public class FilmController {
     public List<Film> commonFilms(@RequestParam int userId, @RequestParam int friendId) {
         List<Film> filmList = filmService.commonFilms(userId, friendId);
         log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId, friendId, filmList.size());
+        return filmList;
+    }
+
+    @GetMapping("/search")
+    public List<Film> search(@RequestParam String query, @RequestParam String by) {
+        List<Film> filmList = filmService.search(query, by);
+        log.info("Выведен список фильмов согласно поиску, по запросу \"{}\"", query);
         return filmList;
     }
 

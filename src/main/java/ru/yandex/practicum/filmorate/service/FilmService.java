@@ -58,4 +58,8 @@ public class FilmService {
         User friend = userStorage.findUserById(friendId);
         return filmStorage.commonFilms(userId, friendId);
     }
+
+    public List<Film> search(String query, String by) {
+        return null;
+    }
 }
