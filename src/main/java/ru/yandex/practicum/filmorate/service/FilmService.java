@@ -52,4 +52,8 @@ public class FilmService {
         User userLike = userStorage.findUserById(userId);
         filmStorage.dellLike(id, userId);
     }
+
+    public Film delete(Integer filmId){
+        return filmStorage.delete(filmId);
+    }
 }

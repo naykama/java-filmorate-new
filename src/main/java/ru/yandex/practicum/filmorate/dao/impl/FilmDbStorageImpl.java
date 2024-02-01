@@ -71,7 +71,10 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> popular(int count) {
-        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
+        String sql = "SELECT f.name AS film_name, g.name AS genre_name, YEAR(f.release_date) AS release_year, " +
+                "COUNT(fl.id_film) AS likes_count FROM films f JOIN filme_genres fg ON f.id = fg.film_id" +
+                "JOIN genres g ON fg.genre_id = g.id LEFT JOIN film_liks fl ON f.id = fl.id_film GROUP BY f.name, " +
+                "g.name, YEAR(f.release_date) ORDER BY g.name, release_year DESC, likes_count DESC; limit ?";
         if (count == 10) {
             return jdbcTemplate.query(sql, filmRowMapper(), 10);
         } else {
@@ -147,4 +150,18 @@ public class FilmDbStorageImpl implements FilmStorage {
             }
         });
     }
+
+    @Override
+    public Film delete(Integer filmId) {
+        if (filmId == null) {
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+        Film film = findFimById(filmId);
+        String sqlQuery = "DELETE FROM films WHERE id = ? ";
+        if (jdbcTemplate.update(sqlQuery, filmId) == 0) {
+            throw new EntityNotFoundException("Фильм с ID=" + filmId + " не найден!");
+        }
+        return film;
+    }
+
 }
