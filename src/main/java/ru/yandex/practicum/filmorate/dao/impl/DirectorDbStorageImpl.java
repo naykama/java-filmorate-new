@@ -6,13 +6,19 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.DirectorStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.function.Function.identity;
 
 @Slf4j
 @Service
@@ -57,8 +63,23 @@ public class DirectorDbStorageImpl implements DirectorStorage {
 
     @Override
     public void delDirectorById(int id) {
-        String sql = "DELETE FROM directors WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        String sql = "DELETE FROM film_director WHERE director_id = ?;\n" +
+                "DELETE FROM directors WHERE id = ?";
+        jdbcTemplate.update(sql, id, id);
+    }
+
+    @Override
+    public void load(List<Film> films) {
+        final Map<Integer, Film> filmById = films.stream().collect(Collectors.toMap(Film::getId, identity()));
+        String parametersSql = String.join(",", Collections.nCopies(films.size(), "?"));
+        final String sqlQuery = "SELECT * FROM directors d, film_director fd WHERE fd.director_id = d.id AND fd.film_id in ("
+                                + parametersSql + ")";
+        Integer[] filmIds = filmById.keySet().stream().toArray(Integer[]::new);
+        SqlRowSet directorSet = jdbcTemplate.queryForRowSet(sqlQuery, filmIds);
+        while (directorSet.next()) {
+            filmById.get(directorSet.getInt("film_id")).getDirectors()
+                    .add(new Director(directorSet.getInt("director_id"), directorSet.getString("name")));
+        }
     }
 
     private RowMapper<Director> directorRowMapper() {

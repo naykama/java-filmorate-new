@@ -61,7 +61,6 @@ public class FilmController {
 
     }
 
-
     @GetMapping("/popular")
     public List<Film> popular(@RequestParam(defaultValue = "10") @Positive int count) {
         List<Film> filmList = filmService.popular(count);
@@ -69,4 +68,15 @@ public class FilmController {
         return filmList;
     }
 
+    @GetMapping("/director/{id}")
+    public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam String sortBy) {
+        switch (sortBy) {
+            case "likes":
+                return filmService.getFilmsForDirectorSortedByLikes(directorId);
+            case "year":
+                return filmService.getFilmsForDirectorSortedByYear(directorId);
+            default:
+                throw new RuntimeException("Некорректный параметр запроса");
+        }
+    }
 }

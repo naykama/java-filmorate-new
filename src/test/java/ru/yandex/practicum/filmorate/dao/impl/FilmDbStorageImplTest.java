@@ -6,10 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.dao.DirectorStorage;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -27,6 +29,7 @@ class FilmDbStorageImplTest {
     private final FilmStorage filmStorage;
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
+    private final DirectorStorage directorStorage;
     private final JdbcTemplate jdbcTemplate;
 
 
@@ -96,7 +99,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         Mpa mpaTwo = new Mpa(2, "PG");
         Mpa mpaThree = new Mpa(3, "G");
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,directorStorage);
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         filmThree.setMpa(mpaThree);
@@ -127,7 +130,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -144,7 +147,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -154,5 +157,30 @@ class FilmDbStorageImplTest {
         filmService.dellLike(1, 1);
         Film filmAfterLike = filmService.findFimById(1);
         assertTrue(filmAfterLike.getRate() == -1);
+    }
+
+    @Test
+    void getFilmsForDirectorSortedByTest() {
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        Mpa mpa = new Mpa(1, "G");
+        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2002, 12, 20), 167);
+        Film filmTwo= new Film(2, "filmTwo", "testDescription", LocalDate.of(2001, 12, 20), 167);
+        Film filmThree = new Film(3, "filmThree", "testDescription", LocalDate.of(2000, 12, 20), 167);
+        Director director = new Director(1, "Ivanov");
+        filmOne.setMpa(mpa);
+        filmTwo.setMpa(mpa);
+        filmThree.setMpa(mpa);
+        directorStorage.post(director);
+        filmOne.getDirectors().add(director);
+        filmTwo.getDirectors().add(director);
+        filmService.post(filmOne);
+        filmService.post(filmTwo);
+        filmService.post(filmThree);
+        List<Film> filmsSortedByYear = filmService.getFilmsForDirectorSortedByYear(1);
+
+        assertEquals(2, filmsSortedByYear.size());
+        assertEquals("filmTwo", filmsSortedByYear.get(0).getName());
+        List<Film> filmsSortedByLikes = filmService.getFilmsForDirectorSortedByLikes(1);
+        assertEquals(2, filmsSortedByLikes.size());
     }
 }

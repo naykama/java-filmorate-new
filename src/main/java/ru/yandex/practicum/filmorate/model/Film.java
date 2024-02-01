@@ -1,10 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-
 import lombok.Data;
-import org.springframework.stereotype.Service;
-
-
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 import java.util.LinkedHashSet;

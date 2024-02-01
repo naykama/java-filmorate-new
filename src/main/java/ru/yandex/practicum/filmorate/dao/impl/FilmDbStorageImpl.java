@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -55,6 +56,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         film.setRate(0);
         film.setId(id.intValue());
         setGenresForFilm(film);
+        deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
@@ -67,6 +69,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         jdbcTemplate.update(sqlUpdate, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         film.setMpa(updateMpa(film.getMpa().getId()));
         setGenresForFilm(film);
+        deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
@@ -144,6 +147,33 @@ public class FilmDbStorageImpl implements FilmStorage {
             @Override
             public int getBatchSize() {
                 return batchUpdate.size();
+            }
+        });
+    }
+
+    private void deleteAndSetDirectorsForFilm(Film film) {
+        String sql = "DELETE FROM film_director WHERE film_id = ?";
+        jdbcTemplate.update(sql, film.getId());
+
+        List<Object[]> batchList = new ArrayList<>();
+        for (Director director : film.getDirectors()) {
+            batchList.add(new Object[]{film.getId(), director.getId()});
+        }
+        insertDirectorsForFilm(batchList);
+    }
+
+    private void insertDirectorsForFilm( List<Object[]> filmDirectorIdList) {
+        String sql = "MERGE INTO film_director VALUES (?, ?)";
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement preparedStatement, int i) throws SQLException {
+                Object[] parameters = filmDirectorIdList.get(i);
+                preparedStatement.setInt(1, (int) parameters[0]);
+                preparedStatement.setInt(2, (int) parameters[1]);
+            }
+            @Override
+            public int getBatchSize() {
+                return filmDirectorIdList.size();
             }
         });
     }
