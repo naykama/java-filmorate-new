@@ -19,7 +19,7 @@ public interface FilmStorage {
 
     void dellLike(int id, int userId);
 
-    List<Film> commonFilms(int userId, int friendId);
+    List<Film> getСommonFilms(int userId, int friendId);
 
     List<Film> search(String query, String by);
 }

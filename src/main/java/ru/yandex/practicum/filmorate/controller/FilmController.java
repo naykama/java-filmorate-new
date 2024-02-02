@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -62,7 +63,6 @@ public class FilmController {
 
     }
 
-
     @GetMapping("/popular")
     public List<Film> popular(@RequestParam(defaultValue = "10") @Positive int count) {
         List<Film> filmList = filmService.popular(count);
@@ -70,6 +70,28 @@ public class FilmController {
         return filmList;
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
+        List<Film> filmList = filmService.getСommonFilms(userId, friendId);
+        log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId, friendId, filmList.size());
+        return filmList;
+    }
+
+    @GetMapping("/director/{id}")
+    public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam String sortBy) {
+        switch (sortBy) {
+            case "likes":
+                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по количеству лайков",
+                        directorId);
+                return filmService.getFilmsForDirectorSortedByLikes(directorId);
+            case "year":
+                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по году выпуска", directorId);
+                return filmService.getFilmsForDirectorSortedByYear(directorId);
+            default:
+                log.error("Ошибка в параметрах запроса. Переданный параметр = \"{}\"", sortBy);
+                throw new IllegalRequestParameterException("Некорректный параметр запроса");
+        }
+    }
     @GetMapping("/common")
     public List<Film> commonFilms(@RequestParam int userId, @RequestParam int friendId) {
         List<Film> filmList = filmService.commonFilms(userId, friendId);
