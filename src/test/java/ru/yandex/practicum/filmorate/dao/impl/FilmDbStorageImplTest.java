@@ -183,4 +183,60 @@ class FilmDbStorageImplTest {
         List<Film> filmsSortedByLikes = filmService.getFilmsForDirectorSortedByLikes(1);
         assertEquals(2, filmsSortedByLikes.size());
     }
+
+    @Test
+    void commonFilmsTest() {
+        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
+        Film filmTwo = new Film(2, "filmTwo", "testDescription", LocalDate.of(2000, 12, 20), 167);
+        Mpa mpaOne = new Mpa(1, "G");
+        Mpa mpaTwo = new Mpa(2, "PG");
+        filmOne.setMpa(mpaOne);
+        filmTwo.setMpa(mpaTwo);
+        FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
+        filmDbStorage.post(filmOne);
+        filmDbStorage.post(filmTwo);
+        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
+        User newUser2 = new User(2, "user2@email.ru", "petya", "Petia Petrov", LocalDate.of(1990, 1, 1));
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
+        userStorage.post(newUser);
+        userStorage.post(newUser2);
+        filmDbStorage.addLike(1, 1);
+        filmDbStorage.addLike(1, 2);
+        filmDbStorage.addLike(2, 1);
+        List<Film> films = filmDbStorage.getСommonFilms(1, 2);
+        assertTrue(films.size() == 1);
+        assertEquals(films.get(0).getName(), filmOne.getName());
+        assertEquals(films.get(0).getDuration(), filmOne.getDuration());
+        filmDbStorage.dellLike(1, 1);
+        List<Film> filmsNew = filmDbStorage.getСommonFilms(1, 2);
+        assertTrue(filmsNew.isEmpty());
+    }
+
+    @Test
+    void searchTest() {
+        FilmService filmService = new FilmService(filmStorage, genresStorage, userStorage, directorStorage);
+        Mpa mpa = new Mpa(1, "G");
+        Film filmOne = new Film(1, "One", "testDescription", LocalDate.of(2002, 12, 20), 167);
+        Film filmTwo = new Film(2, "film for Ivanov", "testDescription", LocalDate.of(2001, 12, 20), 167);
+        Director director = new Director(1, "Ivanov");
+        filmOne.setMpa(mpa);
+        filmTwo.setMpa(mpa);
+        directorStorage.post(director);
+        filmOne.getDirectors().add(director);
+        filmService.post(filmOne);
+        filmService.post(filmTwo);
+        List<Film> filmListDirector = filmService.search("iva", "director");
+        assertTrue(filmListDirector.contains(filmOne));
+
+        List<Film> filmListTitle = filmService.search("iva", "title");
+        assertTrue(filmListTitle.contains(filmTwo));
+        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
+        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
+        userStorage.post(newUser);
+        filmStorage.addLike(2, 1);
+        List<Film> filmListTitleAndDirector = filmService.search("iva", "title,director");
+        assertTrue(filmListTitleAndDirector.size() == 2);
+        assertEquals(filmListTitleAndDirector.get(0).getName(), filmTwo.getName());
+        assertEquals(filmListTitleAndDirector.get(1).getName(), filmOne.getName());
+    }
 }

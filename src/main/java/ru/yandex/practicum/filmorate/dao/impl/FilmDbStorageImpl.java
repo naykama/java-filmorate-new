@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -55,8 +56,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
         film.setRate(0);
         film.setId(id.intValue());
-        setGenresForFilm(film);
-        deleteAndSetDirectorsForFilm(film);
+        setGenresForFilm(film);deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
@@ -68,8 +68,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         film.setRate(findFilm.getRate());
         jdbcTemplate.update(sqlUpdate, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         film.setMpa(updateMpa(film.getMpa().getId()));
-        setGenresForFilm(film);
-        deleteAndSetDirectorsForFilm(film);
+        setGenresForFilm(film);deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
@@ -177,4 +176,57 @@ public class FilmDbStorageImpl implements FilmStorage {
             }
         });
     }
+
+    public List<Film> getСommonFilms(int userId, int friendId) {
+        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ? INNER JOIN mpa m ON m.id = f.mpa ORDER BY f.rate DESC";
+        return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
+    }
+
+    public List<Film> commonFilms(int userId, int friendId) {
+        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ? INNER JOIN mpa m ON m.id = f.mpa ORDER BY f.rate DESC";
+        return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
+    }
+
+    @Override
+    public List<Film> search(String query, String by) {
+        List<String> byList = new ArrayList<>();
+        if (by.contains(",")) {
+            String[] values = by.split(",");
+            for (String value : values) {
+                byList.add(value);
+            }
+            return searchByDirectorAndTitle(query, byList);
+        } else {
+            switch (by) {
+                case "director":
+                    return searchByDirector(query);
+                case "title":
+                    return searchByTitle(query);
+                default:
+                    log.error("Указан некорректный параметр запроса \"{}\"", by);
+                    throw new IllegalRequestParameterException("Некорректный параметр запроса");
+            }
+        }
+    }
+
+    public List<Film> searchByDirector(String query) {
+        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN mpa m ON m.id = f.mpa INNER JOIN film_director fd ON f.id = fd.film_id INNER JOIN directors d ON fd.director_id = d.id WHERE d.name ILIKE CONCAT('%', ?, '%')";
+        return jdbcTemplate.query(sql, filmRowMapper(), query);
+    }
+
+    public List<Film> searchByTitle(String query) {
+        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN mpa m ON m.id = f.mpa WHERE f.name ILIKE CONCAT('%', ?, '%')";
+        return jdbcTemplate.query(sql, filmRowMapper(), query);
+    }
+
+    public List<Film> searchByDirectorAndTitle(String query, List<String> byList) {
+        String sql = "select f.*, m.name as mpa_name from films f inner join mpa m on m.id = f.mpa where f.name ILIKE CONCAT('%', ?, '%') or f.name = (select f.name from films f inner join film_director fd on f.id = fd.film_id inner join directors d on fd.director_id = d.id where d.name ILIKE CONCAT('%', ?, '%')) order by rate desc";
+        if (byList.contains("title") && byList.contains("director") && byList.size() == 2) {
+            return jdbcTemplate.query(sql, filmRowMapper(), query, query);
+        } else {
+            log.error("Указан некорректный параметр запроса");
+            throw new IllegalRequestParameterException("Некорректный параметр запроса");
+        }
+    }
+
 }

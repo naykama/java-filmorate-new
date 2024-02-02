@@ -85,4 +85,16 @@ public class FilmService {
         return directorIds;
     }
 
+    public List<Film> getСommonFilms(int userId, int friendId) {
+        User user = userStorage.findUserById(userId);
+        User friend = userStorage.findUserById(friendId);
+        return filmStorage.getСommonFilms(userId, friendId);
+    }
+
+    public List<Film> search(String query, String by) {
+        List<Film> filmList = filmStorage.search(query, by);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
 }
