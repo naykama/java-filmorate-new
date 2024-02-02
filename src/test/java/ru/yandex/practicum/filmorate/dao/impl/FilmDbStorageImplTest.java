@@ -130,7 +130,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,directorStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -178,12 +178,12 @@ class FilmDbStorageImplTest {
         filmDbStorage.addLike(1, 1);
         filmDbStorage.addLike(1, 2);
         filmDbStorage.addLike(2, 1);
-        List<Film> films = filmDbStorage.commonFilms(1, 2);
+        List<Film> films = filmDbStorage.getСommonFilms(1, 2);
         assertTrue(films.size() == 1);
         assertEquals(films.get(0).getName(), filmOne.getName());
         assertEquals(films.get(0).getDuration(), filmOne.getDuration());
         filmDbStorage.dellLike(1, 1);
-        List<Film> filmsNew = filmDbStorage.commonFilms(1, 2);
+        List<Film> filmsNew = filmDbStorage.getСommonFilms(1, 2);
         assertTrue(filmsNew.isEmpty());
     }
 
@@ -210,33 +210,5 @@ class FilmDbStorageImplTest {
         assertEquals("filmTwo", filmsSortedByYear.get(0).getName());
         List<Film> filmsSortedByLikes = filmService.getFilmsForDirectorSortedByLikes(1);
         assertEquals(2, filmsSortedByLikes.size());
-    }
-
-    @Test
-    void commonFilmsTest() {
-        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
-        Film filmTwo = new Film(2, "filmTwo", "testDescription", LocalDate.of(2000, 12, 20), 167);
-        Mpa mpaOne = new Mpa(1, "G");
-        Mpa mpaTwo = new Mpa(2, "PG");
-        filmOne.setMpa(mpaOne);
-        filmTwo.setMpa(mpaTwo);
-        FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmOne);
-        filmDbStorage.post(filmTwo);
-        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        User newUser2 = new User(2, "user2@email.ru", "petya", "Petia Petrov", LocalDate.of(1990, 1, 1));
-        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
-        userStorage.post(newUser);
-        userStorage.post(newUser2);
-        filmDbStorage.addLike(1, 1);
-        filmDbStorage.addLike(1, 2);
-        filmDbStorage.addLike(2, 1);
-        List<Film> films = filmDbStorage.getСommonFilms(1, 2);
-        assertTrue(films.size() == 1);
-        assertEquals(films.get(0).getName(), filmOne.getName());
-        assertEquals(films.get(0).getDuration(), filmOne.getDuration());
-        filmDbStorage.dellLike(1, 1);
-        List<Film> filmsNew = filmDbStorage.getСommonFilms(1, 2);
-        assertTrue(filmsNew.isEmpty());
     }
 }

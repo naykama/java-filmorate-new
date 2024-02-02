@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameter;
+import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -184,6 +184,11 @@ public class FilmDbStorageImpl implements FilmStorage {
         return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
     }
 
+    public List<Film> commonFilms(int userId, int friendId) {
+        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ? INNER JOIN mpa m ON m.id = f.mpa ORDER BY f.rate DESC";
+        return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
+    }
+
     @Override
     public List<Film> search(String query, String by) {
         List<String> byList = new ArrayList<>();
@@ -201,7 +206,7 @@ public class FilmDbStorageImpl implements FilmStorage {
                     return searchByTitle(query);
                 default:
                     log.error("Указан некорректный параметр запроса \"{}\"", by);
-                    throw new IllegalRequestParameter("Некорректный параметр запроса");
+                    throw new IllegalRequestParameterException("Некорректный параметр запроса");
             }
         }
     }
@@ -221,7 +226,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         if (byList.contains("title") && byList.contains("director") && byList.size() == 2) {
             return jdbcTemplate.query(sql, filmRowMapper(), query, query);
         } else {
-            throw new IllegalRequestParameter("Некорректный параметр запроса");
+            log.error("Указан некорректный параметр запроса");
+            throw new IllegalRequestParameterException("Некорректный параметр запроса");
         }
     }
 

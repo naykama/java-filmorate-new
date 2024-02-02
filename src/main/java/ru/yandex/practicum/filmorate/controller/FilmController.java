@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -91,12 +90,6 @@ public class FilmController {
                 log.error("Ошибка в параметрах запроса. Переданный параметр = \"{}\"", sortBy);
                 throw new IllegalRequestParameterException("Некорректный параметр запроса");
         }
-    }
-    @GetMapping("/common")
-    public List<Film> commonFilms(@RequestParam int userId, @RequestParam int friendId) {
-        List<Film> filmList = filmService.commonFilms(userId, friendId);
-        log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId, friendId, filmList.size());
-        return filmList;
     }
 
     @GetMapping("/search")
