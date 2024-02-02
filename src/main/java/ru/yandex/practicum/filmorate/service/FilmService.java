@@ -93,13 +93,9 @@ public class FilmService {
     }
 
     public List<Film> search(String query, String by) {
-        List<Film> filmList = filmStorage.search(query,by);
+        List<Film> filmList = filmStorage.search(query, by);
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         return filmList;
-    }
-
-    public List<Film> search(String query, String by) {
-        return null;
     }
 }
