@@ -161,7 +161,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         insertDirectorsForFilm(batchList);
     }
 
-    private void insertDirectorsForFilm( List<Object[]> filmDirectorIdList) {
+    private void insertDirectorsForFilm(List<Object[]> filmDirectorIdList) {
         String sql = "MERGE INTO film_director VALUES (?, ?)";
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -170,6 +170,7 @@ public class FilmDbStorageImpl implements FilmStorage {
                 preparedStatement.setInt(1, (int) parameters[0]);
                 preparedStatement.setInt(2, (int) parameters[1]);
             }
+
             @Override
             public int getBatchSize() {
                 return filmDirectorIdList.size();

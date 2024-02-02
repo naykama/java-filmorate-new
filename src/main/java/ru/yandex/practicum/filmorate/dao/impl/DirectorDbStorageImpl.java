@@ -55,9 +55,10 @@ public class DirectorDbStorageImpl implements DirectorStorage {
 
     @Override
     public Director put(Director director) {
-        String sql = "UPDATE directors SET name = ?";
-        findDirectorById(director.getId());
-        jdbcTemplate.update(sql, director.getName());
+        String sql = "UPDATE directors SET name = ? WHERE id = ?";
+        if (jdbcTemplate.update(sql, director.getName(), director.getId()) == 0) {
+            throw new EntityNotFoundException("Нет режиссёра с id: " + director.getId());
+        }
         return director;
     }
 
@@ -65,7 +66,9 @@ public class DirectorDbStorageImpl implements DirectorStorage {
     public void delDirectorById(int id) {
         String sql = "DELETE FROM film_director WHERE director_id = ?;\n" +
                 "DELETE FROM directors WHERE id = ?";
-        jdbcTemplate.update(sql, id, id);
+        if (jdbcTemplate.update(sql, id, id) == 0) {
+            throw new EntityNotFoundException("Нет режиссёра с id: " + id);
+        }
     }
 
     @Override
