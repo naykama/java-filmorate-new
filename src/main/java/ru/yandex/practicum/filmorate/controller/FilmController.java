@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -72,11 +73,15 @@ public class FilmController {
     public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam String sortBy) {
         switch (sortBy) {
             case "likes":
+                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по количеству лайков",
+                        directorId);
                 return filmService.getFilmsForDirectorSortedByLikes(directorId);
             case "year":
+                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по году выпуска", directorId);
                 return filmService.getFilmsForDirectorSortedByYear(directorId);
             default:
-                throw new RuntimeException("Некорректный параметр запроса");
+                log.error("Ошибка в параметрах запроса. Переданный параметр = \"{}\"", sortBy);
+                throw new IllegalRequestParameterException("Некорректный параметр запроса");
         }
     }
 }
