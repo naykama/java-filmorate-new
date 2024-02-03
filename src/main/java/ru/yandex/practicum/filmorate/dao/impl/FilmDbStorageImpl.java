@@ -76,10 +76,15 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sql = "SELECT f.name, f.release_date, COUNT(fl.id_user) AS likes_count FROM films f" +
-                " JOIN film_liks fl ON f.id = fl.id_film JOIN filme_genres fg ON f.id = fg.film_id" +
-                " JOIN genres g ON fg.genre_id = g.id GROUP BY f.name, f.release_date" +
-                " ORDER BY f.release_date DESC, likes_count DESC LIMIT ?;";
+        String sql = "SELECT f.*, m.name AS mpa_name, COUNT(fl.id_user) AS likes_count " +
+                "FROM films f " +
+                "JOIN film_liks fl ON f.id = fl.id_film " +
+                "JOIN filme_genres fg ON f.id = fg.film_id " +
+                "JOIN genres g ON fg.genre_id = g.id " +
+                "JOIN mpa m ON f.mpa = m.id " +
+                "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.rate, f.mpa, m.name " +
+                "ORDER BY f.release_date DESC, likes_count DESC " +
+                "LIMIT ?";
         if (count == 10) {
             return jdbcTemplate.query(sql, filmRowMapper(), 10);
         } else {
@@ -106,7 +111,9 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     private RowMapper<Film> filmRowMapper() {
         return (rs, rowNum) -> {
-            Film film = new Film(rs.getInt("id"), rs.getString("name"), rs.getString("description"), LocalDate.parse(rs.getString("release_date")), rs.getInt("duration"));
+            Film film = new Film(rs.getInt("id"), rs.getString("name"),
+                    rs.getString("description"), LocalDate.parse(rs.getString("release_date")),
+                    rs.getInt("duration"));
             film.setRate(rs.getInt("rate"));
             Mpa mpa = new Mpa();
             mpa.setId(rs.getInt("mpa"));

@@ -15,10 +15,12 @@ import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -105,6 +107,13 @@ class FilmDbStorageImplTest {
         film2.setMpa(new Mpa(2, "R"));
         film3.setMpa(new Mpa(3, "PG"));
 
+        film1.setGenres(new LinkedHashSet<>());
+        film1.getGenres().add(new Genre(1, "Комедия"));
+        film2.setGenres(new LinkedHashSet<>());
+        film2.getGenres().add(new Genre(1, "Комедия"));
+        film3.setGenres(new LinkedHashSet<>());
+        film3.getGenres().add(new Genre(2, "Боевик"));
+
         User user1 = new User(1, "user1@example.com", "user1", "User 1", LocalDate.of(1990, 1, 1));
         User user2 = new User(2, "user2@example.com", "user2", "User 2", LocalDate.of(1990, 2, 1));
         User user3 = new User(3, "user3@example.com", "user3", "User 3", LocalDate.of(1990, 3, 1));
@@ -126,11 +135,11 @@ class FilmDbStorageImplTest {
 
         String films1 = popularFilms.get(0).getName();
         String films2 = popularFilms.get(1).getName();
-        String films3 = popularFilms.get(3).getName();
+        String films3 = popularFilms.get(2).getName();
 
-        Assertions.assertEquals("Film 1", films1);
+        Assertions.assertEquals("Film 1", films3);
+        Assertions.assertEquals("Film 3", films1);
         Assertions.assertEquals("Film 2", films2);
-        Assertions.assertEquals("Film 3", films3);
     }
 
     @Test
