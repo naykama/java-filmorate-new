@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -92,37 +93,44 @@ class FilmDbStorageImplTest {
     }
 
     @Test
-    void popularTest() {
-        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
-        Film filmTwo = new Film(2, "filmTwo", "testDescription", LocalDate.of(2000, 12, 20), 167);
-        Film filmThree = new Film(3, "filmThree", "testDescription", LocalDate.of(2000, 12, 20), 167);
-        Mpa mpaOne = new Mpa(1, "G");
-        Mpa mpaTwo = new Mpa(2, "PG");
-        Mpa mpaThree = new Mpa(3, "G");
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,directorStorage);
-        filmOne.setMpa(mpaOne);
-        filmTwo.setMpa(mpaTwo);
-        filmThree.setMpa(mpaThree);
-        User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        User newUser2 = new User(2, "user2@email.ru", "petya", "Petia Petrov", LocalDate.of(1990, 1, 1));
-        UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
-        userStorage.post(newUser);
-        userStorage.post(newUser2);
-        filmService.post(filmOne);
-        filmService.post(filmTwo);
-        filmService.post(filmThree);
-        filmService.addLike(2, 1);
-        filmService.addLike(2, 2);
-        filmService.addLike(1, 2);
-        List<Film> filmList = filmService.popular(10);
-        assertTrue(filmList.size() == 3);
-        assertEquals(filmList.get(0).getName(), "filmTwo");
-        assertEquals(filmList.get(1).getName(), "filmOne");
-        assertEquals(filmList.get(2).getName(), "filmThree");
-        List<Film> filmListTwo = filmService.popular(2);
-        assertTrue(filmListTwo.size() == 2);
-        assertEquals(filmListTwo.get(0).getName(), "filmTwo");
-        assertEquals(filmListTwo.get(1).getName(), "filmOne");
+    public void testGetPopularFilmsWithLikes() {
+        FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
+        UserStorage userDbStorage = new UserDbStorageImpl(jdbcTemplate);
+
+        Film film1 = new Film(1, "Film 1", "Description 1", LocalDate.of(2022, 1, 1), 120);
+        Film film2 = new Film(2, "Film 2", "Description 2", LocalDate.of(2022, 2, 1), 90);
+        Film film3 = new Film(3, "Film 3", "Description 3", LocalDate.of(2022, 3, 1), 150);
+
+        film1.setMpa(new Mpa(1, "PG-13"));
+        film2.setMpa(new Mpa(2, "R"));
+        film3.setMpa(new Mpa(3, "PG"));
+
+        User user1 = new User(1, "user1@example.com", "user1", "User 1", LocalDate.of(1990, 1, 1));
+        User user2 = new User(2, "user2@example.com", "user2", "User 2", LocalDate.of(1990, 2, 1));
+        User user3 = new User(3, "user3@example.com", "user3", "User 3", LocalDate.of(1990, 3, 1));
+
+        filmDbStorage.post(film1);
+        filmDbStorage.post(film2);
+        filmDbStorage.post(film3);
+
+        userDbStorage.post(user1);
+        userDbStorage.post(user2);
+        userDbStorage.post(user3);
+
+        filmDbStorage.addLike(1, 1);
+        filmDbStorage.addLike(1, 2);
+        filmDbStorage.addLike(2, 1);
+        filmDbStorage.addLike(3, 3);
+
+        List<Film> popularFilms = filmDbStorage.getPopularFilms(10);
+
+        String films1 = popularFilms.get(0).getName();
+        String films2 = popularFilms.get(1).getName();
+        String films3 = popularFilms.get(3).getName();
+
+        Assertions.assertEquals("Film 1", films1);
+        Assertions.assertEquals("Film 2", films2);
+        Assertions.assertEquals("Film 3", films3);
     }
 
     @Test
@@ -164,7 +172,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
         filmService.post(filmOne);
         filmService.delete(1);
         assertThrows(EntityNotFoundException.class, () -> filmService.findFimById(1));
