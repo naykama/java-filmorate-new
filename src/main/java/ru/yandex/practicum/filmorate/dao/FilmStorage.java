@@ -13,7 +13,7 @@ public interface FilmStorage {
 
     Film put(Film film);
 
-    List<Film> popular(int count);
+    List<Film> getPopularFilms(int count);
 
     void addLike(int id, int userId);
 
