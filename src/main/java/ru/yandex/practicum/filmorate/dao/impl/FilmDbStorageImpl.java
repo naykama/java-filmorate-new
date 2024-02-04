@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -23,7 +24,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -38,6 +38,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id where f.id = ? order by f.id";
         try {
             List<Film> filmList = List.of(jdbcTemplate.queryForObject(sql, filmRowMapper(), id));
+            GenresStorage genresStorage = new GenresDbStorageImpl(jdbcTemplate);
+            genresStorage.load(filmList);
             return filmList.get(0);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка поиска фильма с id \"{}\"", id);

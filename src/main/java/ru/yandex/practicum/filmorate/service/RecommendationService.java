@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.RecommendationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -15,14 +17,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private final UserService userService;
-    private final FilmService filmService;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
     private final JdbcTemplate jdbcTemplate;
 
     public Set<Film> getRecommendedFilms(Integer userId) {
         Map<Integer, List<Integer>> filmsUsers = new HashMap<>();
         //Ищем всех пользователей
-        List<User> userList = userService.findAll();
+        List<User> userList = userStorage.findAll();
         if (userList.isEmpty()) {
             log.error("В базе нет ниодного пользователя!");
             throw new RecommendationException("В базе нет ниодного пользователя!");
@@ -61,7 +63,7 @@ public class RecommendationService {
             //Определяем фильм, который один пользователь пролайкал, а другой нет.
             return similarFilms.stream().flatMap(idUser -> getUsersFilms(idUser).stream())
                     .filter(filmId -> !filmsUsers.get(userId).contains(filmId))
-                    .map(filmService::findFimById)
+                    .map(filmStorage::findFimById)
                     .collect(Collectors.toSet());
         }
     }
