@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exeption.RecommendationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -22,9 +23,17 @@ public class RecommendationService {
         Map<Integer, List<Integer>> filmsUsers = new HashMap<>();
         //Ищем всех пользователей
         List<User> userList = userService.findAll();
+        if (userList.isEmpty()) {
+            log.error("В базе нет ниодного пользователя!");
+            throw new RecommendationException("В базе нет ниодного пользователя!");
+        }
         //получение всех фильмов, которые пользователь лайкнул
         for (User user : userList) {
             filmsUsers.put(user.getId(), getUsersFilms(user.getId()));
+            if (filmsUsers.isEmpty()) {
+                log.error("В базе нет фильмов с лайками!");
+                throw new RecommendationException("В базе нет фильмов с лайками!");
+            }
         }
         //Находим пользователей с максимальным количеством пересечения по лайкам.
         long maxMatches = 0;
@@ -51,14 +60,18 @@ public class RecommendationService {
         } else {
             //Определяем фильм, который один пользователь пролайкал, а другой нет.
             return similarFilms.stream().flatMap(idUser -> getUsersFilms(idUser).stream())
-                .filter(filmId -> !filmsUsers.get(userId).contains(filmId))
-                .map(filmService::findFimById)
-                .collect(Collectors.toSet());
+                    .filter(filmId -> !filmsUsers.get(userId).contains(filmId))
+                    .map(filmService::findFimById)
+                    .collect(Collectors.toSet());
         }
     }
 
     //Ищем фильмы которым пользователи поставили лайки
     private List<Integer> getUsersFilms(Integer userId) {
+        if (userId == 0) {
+            log.error("Передан неверный аргумент" + userId);
+            throw new RecommendationException("Передан неверный аргумент" + userId);
+        }
         String sql = "SELECT id_film FROM film_liks WHERE id_user = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("id_film"), userId);
     }
