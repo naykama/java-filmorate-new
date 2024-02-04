@@ -18,4 +18,8 @@ public interface FilmStorage {
     void addLike(int id, int userId);
 
     void dellLike(int id, int userId);
+
+    List<Film> getСommonFilms(int userId, int friendId);
+
+    List<Film> search(String query, String by);
 }
