@@ -37,10 +37,7 @@ public class FilmService {
     }
 
     public Film findFimById(int id) {
-        List<Film> filmList = List.of(filmStorage.findFimById(id));
-        genresStorage.load(filmList);
-        directorStorage.load(filmList);
-        return filmList.get(0);
+        return filmStorage.findFimById(id);
     }
 
     public Film put(Film film) {

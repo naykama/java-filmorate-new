@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
+import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
@@ -25,7 +26,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
-
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -40,6 +40,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id where f.id = ? order by f.id";
         try {
             List<Film> filmList = List.of(jdbcTemplate.queryForObject(sql, filmRowMapper(), id));
+            GenresStorage genresStorage = new GenresDbStorageImpl(jdbcTemplate);
+            genresStorage.load(filmList);
             return filmList.get(0);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка поиска фильма с id \"{}\"", id);
@@ -51,10 +53,8 @@ public class FilmDbStorageImpl implements FilmStorage {
     public Film post(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
-        film.setRate(0);
         Map<String, Object> params = Map.of("name", film.getName(), "description", film.getDescription(), "release_date", film.getReleaseDate().toString(), "duration", film.getDuration(), "rate", film.getRate(), "mpa", film.getMpa().getId());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
-        film.setRate(0);
         film.setId(id.intValue());
         setGenresForFilm(film);deleteAndSetDirectorsForFilm(film);
         return film;
@@ -84,7 +84,6 @@ public class FilmDbStorageImpl implements FilmStorage {
     public void addLike(int id, int userId) {
         String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
         String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
-        Film filmLik = findFimById(id);
         jdbcTemplate.update(sqlInsert, userId, id);
         jdbcTemplate.update(sqlUpdate, id);
     }
@@ -92,7 +91,6 @@ public class FilmDbStorageImpl implements FilmStorage {
     public void dellLike(int id, int userId) {
         String sqlDell = "DELETE FROM film_liks WHERE id_user = ? AND id_film = ?";
         String sqlUpdate = "update films set rate = (rate - 1) where id = ?";
-        Film filmLik = findFimById(id);
         jdbcTemplate.update(sqlDell, userId, id);
         jdbcTemplate.update(sqlUpdate, id);
     }
