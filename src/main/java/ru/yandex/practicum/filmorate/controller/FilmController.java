@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -63,9 +64,17 @@ public class FilmController {
 
 
     @GetMapping("/popular")
-    public List<Film> popular(@RequestParam(defaultValue = "10") @Positive int count) {
-        List<Film> filmList = filmService.getPopularFilms(count);
-        log.info("Выведен список популярных фильмов");
+    public List<Film> popular(@RequestParam(defaultValue = "10") int count,
+                              @RequestParam(value = "genreId", defaultValue = "0") int genreId,
+                              @RequestParam(value = "year", defaultValue = "0") int year) {
+        List<Film> filmList;
+        if (genreId == 0 & year == 0) {
+            filmList = filmService.getPopularFilms(count);
+            log.info("Выведен список популярных фильмов");
+        } else {
+            log.info("Получен GET запрос на получение самых популярных фильмов по жанру и году");
+            return filmService.getMostLikedFilmsByGenreAndYear(count, genreId, year);
+        }
         return filmList;
     }
 
