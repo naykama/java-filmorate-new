@@ -16,19 +16,21 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
 
     public Review getReviewById(int id) {
-        log.info("Передан запрос на получение отзыва с id {}", id);
-        return reviewStorage.getReviewById(id);
+        Review review = reviewStorage.getReviewById(id);
+        log.info("Получен отзыв с id {}", id);
+        return review;
     }
 
     public Review addReview(Review review) {
-        log.info("Передан запрос на добавление отзыва {}", review.toString());
         reviewStorage.addReview(review);
+        log.info("Добавлен отзыв {}", review.toString());
         return review;
     }
 
     public Review updateReview(Review review) {
-        log.info("Передан запрос на обновление отзыва {}", review.toString());
-        return reviewStorage.updateReview(review);
+        Review updatedReview = reviewStorage.updateReview(review);
+        log.info("Обновлен отзыв {}", review.toString());
+        return updatedReview;
     }
 
     public void deleteReviewById(int id) {
@@ -38,13 +40,15 @@ public class ReviewService {
 
 
     public List<Review> getAllReviews() {
-        log.info("Передан запрос на получение всех отзывов");
-        return reviewStorage.getAllReviews();
+        List<Review> reviews = reviewStorage.getAllReviews();
+        log.info("Получены все отзывы");
+        return reviews;
     }
 
     public List<Review> getReviewsByFilmId(int filmId, int count) {
-        log.info("Передан запрос на получение {} отзывов для фильма с id {}", count, filmId);
-        return reviewStorage.getReviewsByFilmId(filmId, count);
+        List<Review> reviews = reviewStorage.getReviewsByFilmId(filmId, count);
+        log.info("Получено {} отзывов для фильма с id {}", count, filmId);
+        return reviews;
     }
 
     public void addLikeToReview(int id, int userId) {
