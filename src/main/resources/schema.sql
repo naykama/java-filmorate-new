@@ -55,6 +55,10 @@ CREATE TABLE IF NOT EXISTS reviews (
     useful integer
 );
 
+ALTER TABLE reviews ADD FOREIGN KEY (film_id) REFERENCES films (id);
+
+ALTER TABLE reviews ADD FOREIGN KEY (user_id) REFERENCES users (id);
+
 ALTER TABLE filme_genres ADD FOREIGN KEY (film_id) REFERENCES films (id);
 
 ALTER TABLE films ADD FOREIGN KEY (mpa) REFERENCES mpa (id);
