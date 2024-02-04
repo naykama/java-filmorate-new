@@ -47,7 +47,16 @@ public class FilmService {
     }
 
     public List<Film> getPopularFilms(int count) {
-        return filmStorage.getPopularFilms(count);
+        List<Film> filmList = filmStorage.getPopularFilms(count);
+        genresStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getMostLikedFilmsByGenreAndYear (int count, int genreId, int year){
+        List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
+        genresStorage.load(filmList);
+
+        return filmList;
     }
 
     public void addLike(int id, int userId) {

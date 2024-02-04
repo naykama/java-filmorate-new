@@ -76,21 +76,55 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sql = "SELECT f.*, m.name AS mpa_name, COUNT(fl.id_user) AS likes_count " +
-                "FROM films f " +
-                "JOIN film_liks fl ON f.id = fl.id_film " +
-                "JOIN filme_genres fg ON f.id = fg.film_id " +
-                "JOIN genres g ON fg.genre_id = g.id " +
-                "JOIN mpa m ON f.mpa = m.id " +
-                "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.rate, f.mpa, m.name " +
-                "ORDER BY f.release_date DESC, likes_count DESC " +
-                "LIMIT ?";
+        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
         if (count == 10) {
             return jdbcTemplate.query(sql, filmRowMapper(), 10);
         } else {
             return jdbcTemplate.query(sql, filmRowMapper(), count);
         }
     }
+
+    @Override
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
+        String sqlYear = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
+                "FROM films f " +
+                "JOIN mpa m ON m.id = f.mpa " +
+                "LEFT JOIN film_liks l on f.id = l.id_film " +
+                "WHERE Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.id " +
+                "ORDER BY count(l.id_user) desc " +
+                "limit ?;";
+        String sqlGenre = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
+                "FROM films f " +
+                "JOIN mpa m ON m.id = f.mpa " +
+                "LEFT JOIN film_liks l on f.id = l.id_film " +
+                "JOIN filme_genres fg on f.id = fg.film_id " +
+                "WHERE fg.genre_id = ?" +
+                "GROUP BY f.id " +
+                "ORDER BY count(l.id_user) desc " +
+                "limit ?;";
+        String sqlYearAndGenre = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
+                "FROM films f " +
+                "LEFT JOIN film_liks l on f.id = l.id_film " +
+                "JOIN mpa m ON m.id = f.mpa " +
+                "JOIN filme_genres fg on f.id = fg.film_id " +
+                "WHERE fg.genre_id = ? and Extract(year from cast(f.release_date as date)) = ?" +
+                "GROUP BY f.id " +
+                "ORDER BY count(l.id_user) desc " +
+                "limit ?;";
+
+        if (genreID != 0 && year != 0) {
+            return jdbcTemplate.query(sqlYearAndGenre, filmRowMapper(), genreID, year, count);
+        }
+        if (genreID == 0) {
+            return jdbcTemplate.query(sqlYear, filmRowMapper(), year, count);
+        }
+        if (year == 0) {
+            return jdbcTemplate.query(sqlGenre, filmRowMapper(), genreID, count);
+        }
+        return Collections.emptyList();
+    }
+
 
     public void addLike(int id, int userId) {
         String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
@@ -168,11 +202,17 @@ public class FilmDbStorageImpl implements FilmStorage {
         if (filmId == null) {
             throw new EntityNotFoundException("Передан пустой аргумент!");
         }
+
         Film film = findFimById(filmId);
-        String sqlQuery = "DELETE FROM films WHERE id = ? ";
-        if (jdbcTemplate.update(sqlQuery, filmId) == 0) {
-            throw new EntityNotFoundException("Фильм с ID=" + filmId + " не найден!");
-        }
+
+        String sqlQueryFg = "DELETE FROM filme_genres WHERE film_id = ? ";
+        String sqlQueryFl = "DELETE FROM film_liks WHERE id_film = ? ";
+        String sqlQueryF = "DELETE FROM films WHERE id = ? ";
+
+        jdbcTemplate.update(sqlQueryFg, filmId);
+        jdbcTemplate.update(sqlQueryFl, filmId);
+        jdbcTemplate.update(sqlQueryF, filmId);
+
         return film;
     }
 

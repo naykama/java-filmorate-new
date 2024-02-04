@@ -66,10 +66,14 @@ public class UserDbStorageImpl implements UserStorage {
             throw new EntityNotFoundException("Передан пустой аргумент!");
         }
         User user = findUserById(userId);
-        String sqlQuery = "DELETE FROM users WHERE id = ? ";
-        if (jdbcTemplate.update(sqlQuery, userId) == 0) {
-            throw new EntityNotFoundException("Юзер с ID=" + userId + " не найден!");
-        }
+        String sqlQueryF = "DELETE FROM friends WHERE user_id = ? or friend_id = ?";
+        String sqlQueryFl = "DELETE FROM film_liks WHERE id_user = ?";
+        String sqlQueryU = "DELETE FROM users WHERE id = ? ";
+
+        jdbcTemplate.update(sqlQueryF, userId, userId);
+        jdbcTemplate.update(sqlQueryFl, userId);
+        jdbcTemplate.update(sqlQueryU, userId);
+
         return user;
     }
 

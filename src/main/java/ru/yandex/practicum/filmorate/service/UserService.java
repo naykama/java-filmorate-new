@@ -45,6 +45,7 @@ public class UserService {
     }
 
     public List<User> getFriends(Integer id) {
+        findUserById(id);
         return friendsUserStorage.getFriends(id);
     }
 
