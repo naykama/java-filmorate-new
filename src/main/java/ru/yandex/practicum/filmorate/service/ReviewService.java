@@ -16,54 +16,54 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
 
     public Review getReviewById(int id) {
-        log.info("Получен отзыв с id {}", id);
+        log.info("Передан запрос на получение отзыва с id {}", id);
         return reviewStorage.getReviewById(id);
     }
 
     public Review addReview(Review review) {
-        log.info("Добавлен отзыв {}", review.toString());
+        log.info("Передан запрос на добавление отзыва {}", review.toString());
         reviewStorage.addReview(review);
         return review;
     }
 
     public Review updateReview(Review review) {
-        log.info("Обновлен отзыв {}", review.toString());
+        log.info("Передан запрос на обновление отзыва {}", review.toString());
         return reviewStorage.updateReview(review);
     }
 
     public void deleteReviewById(int id) {
-        log.info("Удален отзыв с id {}", id);
         reviewStorage.deleteReviewById(id);
+        log.info("Удален отзыв с id {}", id);
     }
 
 
     public List<Review> getAllReviews() {
-        log.info("Получены все отзывы");
+        log.info("Передан запрос на получение всех отзывов");
         return reviewStorage.getAllReviews();
     }
 
     public List<Review> getReviewsByFilmId(int filmId, int count) {
-        log.info("Получено {} отзывов для фильма с id {}", count, filmId);
+        log.info("Передан запрос на получение {} отзывов для фильма с id {}", count, filmId);
         return reviewStorage.getReviewsByFilmId(filmId, count);
     }
 
     public void addLikeToReview(int id, int userId) {
-        log.info("Добавлен лайк отзыву с id {} от пользователя с id {}", id, userId);
         reviewStorage.addLikeToReview(id, userId);
+        log.info("Добавлен лайк отзыву с id {} от пользователя с id {}", id, userId);
     }
 
     public void addDislikeToReview(int id, int userId) {
-        log.info("Добавлен дизлайк отзыву с id {} от пользователя с id {}", id, userId);
         reviewStorage.addDislikeToReview(id, userId);
+        log.info("Добавлен дизлайк отзыву с id {} от пользователя с id {}", id, userId);
     }
 
     public void deleteLikeToReview(int id, int userId) {
-        log.info("Удален лайк отзыву с id {} от пользователя с id {}", id, userId);
         reviewStorage.deleteLikeToReview(id, userId);
+        log.info("Удален лайк отзыву с id {} от пользователя с id {}", id, userId);
     }
 
     public void deleteDislikeToReview(int id, int userId) {
-        log.info("Удален дизлайк отзыву с id {} от пользователя с id {}", id, userId);
         reviewStorage.deleteDislikeToReview(id, userId);
+        log.info("Удален дизлайк отзыву с id {} от пользователя с id {}", id, userId);
     }
 }

@@ -21,11 +21,14 @@ public class ReviewDbStorageImpl implements ReviewStorage {
 
     @Override
     public Review getReviewById(int id) {
-        String sql1 = "SELECT EXISTS (SELECT 1 FROM reviews WHERE id=?)";
-        String sql2 = "SELECT * FROM reviews WHERE id=?";
-        if (jdbcTemplate.queryForObject(sql1, Boolean.class, id)) {
-            return jdbcTemplate.queryForObject(sql2, this::mapRowToReview, id);
-        } else throw new EntityNotFoundException("Отзыв с таким id не найден");
+
+        String sql = "SELECT * FROM reviews WHERE id=?";
+        List<Review> reviews = jdbcTemplate.query(sql, this::mapRowToReview, id);
+        if (reviews.isEmpty()) {
+            throw new EntityNotFoundException("Отзыв с таким id не найден");
+        } else {
+            return reviews.get(0);
+        }
     }
 
     @Override
@@ -66,11 +69,12 @@ public class ReviewDbStorageImpl implements ReviewStorage {
 
     @Override
     public void deleteReviewById(int id) {
-        String sql1 = "SELECT EXISTS (SELECT 1 FROM reviews WHERE id=?)";
-        if (jdbcTemplate.queryForObject(sql1, Boolean.class, id)) {
-            String sql2 = "DELETE FROM reviews WHERE id=?";
-            jdbcTemplate.update(sql2, id);
-        } else throw new IllegalArgumentException("Отзыв с таким id отсутствует");
+        String sql = "DELETE FROM reviews WHERE id=?";
+        int rowsAffected = jdbcTemplate.update(sql, id);
+
+        if (rowsAffected == 0) {
+            throw new IllegalArgumentException("Отзыв с таким id отсутствует");
+        }
     }
 
     @Override
