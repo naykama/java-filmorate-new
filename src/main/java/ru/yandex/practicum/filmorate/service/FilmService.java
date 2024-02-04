@@ -3,13 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dao.DirectorStorage;
-import ru.yandex.practicum.filmorate.dao.FilmStorage;
-import ru.yandex.practicum.filmorate.dao.GenresStorage;
-import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Event.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -24,6 +23,7 @@ public class FilmService {
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
     private final DirectorStorage directorStorage;
+    private final EventStorage eventStorage;
 
     public List<Film> findAll() {
         List<Film> filmList = filmStorage.findAll();
@@ -54,11 +54,13 @@ public class FilmService {
     public void addLike(int id, int userId) {
         User userLike = userStorage.findUserById(userId);
         filmStorage.addLike(id, userId);
+        eventStorage.createEvent(new Event(userId, id, EventType.LIKE, OperationType.ADD));
     }
 
     public void dellLike(int id, int userId) {
         User userLike = userStorage.findUserById(userId);
         filmStorage.dellLike(id, userId);
+        eventStorage.createEvent(new Event(userId, id, EventType.LIKE, OperationType.REMOVE));
     }
 
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {

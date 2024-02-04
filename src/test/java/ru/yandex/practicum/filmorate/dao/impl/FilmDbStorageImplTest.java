@@ -6,10 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.DirectorStorage;
-import ru.yandex.practicum.filmorate.dao.FilmStorage;
-import ru.yandex.practicum.filmorate.dao.GenresStorage;
-import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -31,7 +28,7 @@ class FilmDbStorageImplTest {
     private final UserStorage userStorage;
     private final DirectorStorage directorStorage;
     private final JdbcTemplate jdbcTemplate;
-
+    private final EventStorage eventStorage;
 
     @Test
     void findAllTest() {
@@ -99,7 +96,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         Mpa mpaTwo = new Mpa(2, "PG");
         Mpa mpaThree = new Mpa(3, "G");
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage,directorStorage, eventStorage);
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         filmThree.setMpa(mpaThree);
@@ -130,7 +127,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -147,7 +144,7 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -161,7 +158,7 @@ class FilmDbStorageImplTest {
 
     @Test
     void getFilmsForDirectorSortedByTest() {
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         Mpa mpa = new Mpa(1, "G");
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2002, 12, 20), 167);
         Film filmTwo= new Film(2, "filmTwo", "testDescription", LocalDate.of(2001, 12, 20), 167);
@@ -214,7 +211,7 @@ class FilmDbStorageImplTest {
 
     @Test
     void searchTest() {
-        FilmService filmService = new FilmService(filmStorage, genresStorage, userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage, genresStorage, userStorage, directorStorage, eventStorage);
         Mpa mpa = new Mpa(1, "G");
         Film filmOne = new Film(1, "One", "testDescription", LocalDate.of(2002, 12, 20), 167);
         Film filmTwo = new Film(2, "film for Ivanov", "testDescription", LocalDate.of(2001, 12, 20), 167);
