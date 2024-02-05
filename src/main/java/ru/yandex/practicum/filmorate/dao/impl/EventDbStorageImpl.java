@@ -40,7 +40,6 @@ public class EventDbStorageImpl implements EventStorage {
     public List<Event> getEventsForUserByID(int userId) {
         userStorage.findUserById(userId);
         String sql = "SELECT * FROM events WHERE user_id = ?";
-        List<Event> events = jdbcTemplate.query(sql, eventRowMapper(), userId);
         return jdbcTemplate.query(sql, eventRowMapper(), userId);
     }
 
