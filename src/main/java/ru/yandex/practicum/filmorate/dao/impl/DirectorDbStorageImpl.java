@@ -64,9 +64,10 @@ public class DirectorDbStorageImpl implements DirectorStorage {
 
     @Override
     public void delDirectorById(int id) {
-        String sql = "DELETE FROM film_director WHERE director_id = ?;\n" +
-                "DELETE FROM directors WHERE id = ?";
-        if (jdbcTemplate.update(sql, id, id) == 0) {
+        String sqlDel1 = "DELETE FROM film_director WHERE director_id = ?";
+        String sqlDel2 = "DELETE FROM directors WHERE id = ?";
+        jdbcTemplate.update(sqlDel1, id);
+        if (jdbcTemplate.update(sqlDel2, id) == 0) {
             throw new EntityNotFoundException("Нет режиссёра с id: " + id);
         }
     }

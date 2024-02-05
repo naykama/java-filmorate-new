@@ -97,5 +97,12 @@ CREATE TABLE IF NOT EXISTS events (
   FOREIGN KEY (user_id) REFERENCES users (id),
   FOREIGN KEY (friend_id) REFERENCES users (id),
   FOREIGN KEY (film_id) REFERENCES films (id)
---  FOREIGN KEY (review_id) REFERENCES reviews (id)
+);
+
+ALTER TABLE events ADD CONSTRAINT one_of_three_is_not_null
+CHECK (
+    ( CASE WHEN friend_id IS NULL THEN 0 ELSE 1 END
+    + CASE WHEN film_id IS NULL THEN 0 ELSE 1 END
+    + CASE WHEN review_id IS NULL THEN 0 ELSE 1 END
+    ) = 1
 );

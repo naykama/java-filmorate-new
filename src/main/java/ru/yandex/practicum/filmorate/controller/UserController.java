@@ -76,8 +76,7 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public List<Event> getEventsForUserByID(@PathVariable Integer id) {
         List<Event> eventList = userService.getEventsForUserByID(id);
-        log.info("Cписок событий пользователя \"{}\" и \"{}\", размером \"{}\"", id, eventList.size());
+        log.info("Cписок событий пользователя \"{}\", размером \"{}\"", id, eventList.size());
         return eventList;
     }
-
 }

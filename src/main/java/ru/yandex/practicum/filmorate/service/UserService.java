@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Event.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Event;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
