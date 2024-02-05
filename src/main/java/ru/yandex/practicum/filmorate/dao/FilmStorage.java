@@ -22,4 +22,8 @@ public interface FilmStorage {
     void dellLike(int id, int userId);
 
     Film delete(Integer filmId);
+
+    List<Film> getСommonFilms(int userId, int friendId);
+
+    List<Film> search(String query, String by);
 }

@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -17,6 +19,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final RecommendationService recommendationService;
 
     @GetMapping()
     public List<User> findAll() {
@@ -73,6 +76,11 @@ public class UserController {
         return userList;
     }
 
+    @GetMapping("/{id}/recommendations")
+    public Set<Film> getRecommendation(@PathVariable Integer id) {
+        log.info("Список рекомендованных фильмов пользователю, \"{}\"", id);
+        return recommendationService.getRecommendedFilms(id);
+    }
     @DeleteMapping("/{id}")
     public User delete(@PathVariable Integer id) {
         log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление юзера с ID={}", id);
