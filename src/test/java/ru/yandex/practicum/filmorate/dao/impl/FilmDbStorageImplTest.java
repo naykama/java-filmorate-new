@@ -30,6 +30,7 @@ class FilmDbStorageImplTest {
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
+    private final DirectorStorage directorStorage;
 
 
     @Test
