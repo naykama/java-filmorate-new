@@ -70,9 +70,6 @@ public class FilmService {
         filmStorage.dellLike(id, userId);
     }
 
-    public Film delete(Integer filmId){
-        return filmStorage.delete(filmId);
-    }
 
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
         directorStorage.findDirectorById(directorId);

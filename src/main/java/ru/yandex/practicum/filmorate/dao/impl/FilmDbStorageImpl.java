@@ -76,7 +76,10 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
+        String sql = "SELECT f.name, f.release_date, COUNT(fl.id_user) AS likes_count FROM films f" +
+                " JOIN film_liks fl ON f.id = fl.id_film JOIN filme_genres fg ON f.id = fg.film_id" +
+                " JOIN genres g ON fg.genre_id = g.id GROUP BY f.name, f.release_date" +
+                " ORDER BY f.release_date DESC, likes_count DESC LIMIT ?;";
         if (count == 10) {
             return jdbcTemplate.query(sql, filmRowMapper(), 10);
         } else {
@@ -290,26 +293,6 @@ public class FilmDbStorageImpl implements FilmStorage {
             log.error("Указан некорректный параметр запроса");
             throw new IllegalRequestParameterException("Некорректный параметр запроса");
         }
-    }
-
-
-    @Override
-    public Film delete(Integer filmId) {
-        if (filmId == null) {
-            throw new EntityNotFoundException("Передан пустой аргумент!");
-        }
-
-        Film film = findFimById(filmId);
-
-        String sqlQueryFg = "DELETE FROM filme_genres WHERE film_id = ? ";
-        String sqlQueryFl = "DELETE FROM film_liks WHERE id_film = ? ";
-        String sqlQueryF = "DELETE FROM films WHERE id = ? ";
-
-        jdbcTemplate.update(sqlQueryFg, filmId);
-        jdbcTemplate.update(sqlQueryFl, filmId);
-        jdbcTemplate.update(sqlQueryF, filmId);
-
-        return film;
     }
 
 }
