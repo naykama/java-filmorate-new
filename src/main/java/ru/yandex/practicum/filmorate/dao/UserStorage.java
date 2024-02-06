@@ -14,4 +14,6 @@ public interface UserStorage {
 
     User put(User user);
 
+    User delete(Integer userId);
+
 }

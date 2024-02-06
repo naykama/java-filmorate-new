@@ -13,11 +13,15 @@ public interface FilmStorage {
 
     Film put(Film film);
 
-    List<Film> popular(int count);
+    List<Film> getPopularFilms(int count);
+
+    List<Film> getMostLikedFilmsByGenreAndYear (int count, int genreId, int year);
 
     void addLike(int id, int userId);
 
     void dellLike(int id, int userId);
+
+    Film delete(Integer filmId);
 
     List<Film> getСommonFilms(int userId, int friendId);
 

@@ -37,15 +37,27 @@ public class FilmService {
     }
 
     public Film findFimById(int id) {
-        return filmStorage.findFimById(id);
+        List<Film> filmList = List.of(filmStorage.findFimById(id));
+        genresStorage.load(filmList);
+        return filmList.get(0);
     }
 
     public Film put(Film film) {
         return filmStorage.put(film);
     }
 
-    public List<Film> popular(int count) {
-        return filmStorage.popular(count);
+    public List<Film> getPopularFilms(int count) {
+        List<Film> filmList = filmStorage.getPopularFilms(count);
+        genresStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getMostLikedFilmsByGenreAndYear (int count, int genreId, int year){
+        List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
+        genresStorage.load(filmList);
+        genresStorage.load(filmList);
+
+        return filmList;
     }
 
     public void addLike(int id, int userId) {
@@ -59,6 +71,7 @@ public class FilmService {
         filmStorage.dellLike(id, userId);
         eventStorage.createEvent(new Event(userId, id, EventType.LIKE, OperationType.REMOVE));
     }
+
 
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
         directorStorage.findDirectorById(directorId);
@@ -95,5 +108,9 @@ public class FilmService {
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         return filmList;
+    }
+
+    public Film delete(Integer filmId){
+        return filmStorage.delete(filmId);
     }
 }

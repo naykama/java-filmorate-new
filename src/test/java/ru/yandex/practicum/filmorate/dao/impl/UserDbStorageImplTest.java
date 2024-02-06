@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.dao.EventStorage;
 import ru.yandex.practicum.filmorate.dao.FriendsUserStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.time.LocalDate;
@@ -129,5 +132,14 @@ class UserDbStorageImplTest {
         List<User> friends = userService.getCommonFriends(1, 2);
         assertTrue(friends.size() == 1);
         assertEquals(friends.get(0), newUserThree);
+    }
+
+    @Test
+    public void deleteUser() {
+        User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        userService.post(newUserOne);
+        userService.delete(1);
+        assertThrows(EntityNotFoundException.class, () -> userService.findUserById(1));
     }
 }

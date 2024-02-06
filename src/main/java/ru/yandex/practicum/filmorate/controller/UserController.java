@@ -88,4 +88,9 @@ public class UserController {
         log.info("Список рекомендованных фильмов пользователю, \"{}\"", id);
         return recommendationService.getRecommendedFilms(id);
     }
+    @DeleteMapping("/{id}")
+    public User delete(@PathVariable Integer id) {
+        log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление юзера с ID={}", id);
+        return userService.delete(id);
+    }
 }
