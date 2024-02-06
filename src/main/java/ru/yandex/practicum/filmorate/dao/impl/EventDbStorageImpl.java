@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventStorage;
-import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Event.EventType;
@@ -22,7 +21,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EventDbStorageImpl implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final UserStorage userStorage;
 
     @Override
     public void createEvent(Event event) {
@@ -38,7 +36,6 @@ public class EventDbStorageImpl implements EventStorage {
 
     @Override
     public List<Event> getEventsForUserByID(int userId) {
-        userStorage.findUserById(userId);
         String sql = "SELECT * FROM events WHERE user_id = ?";
         return jdbcTemplate.query(sql, eventRowMapper(), userId);
     }
