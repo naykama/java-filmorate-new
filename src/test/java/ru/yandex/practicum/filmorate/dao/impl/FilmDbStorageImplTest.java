@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.DirectorStorage;
-import ru.yandex.practicum.filmorate.dao.FilmStorage;
-import ru.yandex.practicum.filmorate.dao.GenresStorage;
-import ru.yandex.practicum.filmorate.dao.UserStorage;
+import ru.yandex.practicum.filmorate.dao.*;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -34,6 +31,7 @@ class FilmDbStorageImplTest {
     private final UserStorage userStorage;
     private final JdbcTemplate jdbcTemplate;
     private final DirectorStorage directorStorage;
+    private final EventStorage eventStorage;
 
 
     @Test
@@ -140,12 +138,12 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
         userStorage.post(newUser);
-        Film filmBeforeLike = filmService.findFimById(1);
+        Film filmBeforeLike = filmService.findFimById(newUser.getId());
         assertTrue(filmBeforeLike.getRate() == 0);
         filmService.addLike(1, 1);
         Film filmAfterLike = filmService.findFimById(1);
@@ -157,15 +155,15 @@ class FilmDbStorageImplTest {
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         filmService.post(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
         userStorage.post(newUser);
-        Film filmBeforeLike = filmService.findFimById(1);
+        Film filmBeforeLike = filmService.findFimById(filmOne.getId());
         assertTrue(filmBeforeLike.getRate() == 0);
-        filmService.dellLike(1, 1);
-        Film filmAfterLike = filmService.findFimById(1);
+        filmService.dellLike(filmOne.getId(), newUser.getId());
+        Film filmAfterLike = filmService.findFimById(filmOne.getId());
         assertTrue(filmAfterLike.getRate() == -1);
     }
 
@@ -182,10 +180,10 @@ class FilmDbStorageImplTest {
 
     @Test
     void getFilmsForDirectorSortedByTest() {
-        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
         Mpa mpa = new Mpa(1, "G");
         Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2002, 12, 20), 167);
-        Film filmTwo= new Film(2, "filmTwo", "testDescription", LocalDate.of(2001, 12, 20), 167);
+        Film filmTwo = new Film(2, "filmTwo", "testDescription", LocalDate.of(2001, 12, 20), 167);
         Film filmThree = new Film(3, "filmThree", "testDescription", LocalDate.of(2000, 12, 20), 167);
         Director director = new Director(1, "Ivanov");
         filmOne.setMpa(mpa);
@@ -235,7 +233,7 @@ class FilmDbStorageImplTest {
 
     @Test
     void searchTest() {
-        FilmService filmService = new FilmService(filmStorage, genresStorage, userStorage, directorStorage);
+        FilmService filmService = new FilmService(filmStorage, genresStorage, userStorage, directorStorage, eventStorage);
         Mpa mpa = new Mpa(1, "G");
         Film filmOne = new Film(1, "One", "testDescription", LocalDate.of(2002, 12, 20), 167);
         Film filmTwo = new Film(2, "film for Ivanov", "testDescription", LocalDate.of(2001, 12, 20), 167);

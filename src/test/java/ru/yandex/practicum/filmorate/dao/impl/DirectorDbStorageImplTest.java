@@ -43,7 +43,7 @@ public class DirectorDbStorageImplTest {
 
     @Test
     public void delDirectorByIdTest() {
-        directorStorage.post(new Director(1, "Ivanov"));
+        System.out.println("Director: " + directorStorage.post(new Director(1, "Ivanov")));
         directorStorage.delDirectorById(1);
         assertTrue(directorStorage.findAll().isEmpty());
     }

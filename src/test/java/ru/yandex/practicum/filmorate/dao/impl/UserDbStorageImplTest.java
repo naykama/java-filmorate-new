@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.dao.EventStorage;
 import ru.yandex.practicum.filmorate.dao.FriendsUserStorage;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
@@ -26,12 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserDbStorageImplTest {
     private final UserStorage userStorage;
     private final FriendsUserStorage friendsUserStorageDB;
+    private final EventStorage eventStorage;
 
     @Test
     void findAllTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.post(newUserTwo);
         List<User> userList = userService.findAll();
@@ -44,7 +46,7 @@ class UserDbStorageImplTest {
     @Test
     void findUserByIdTest() {
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUser);
         User savedUser = userService.findUserById(1);
         assertThat(savedUser).isNotNull().usingRecursiveComparison().isEqualTo(newUser);
@@ -55,7 +57,7 @@ class UserDbStorageImplTest {
     @Test
     void postTest() {
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUser);
         User savedUser = userService.findUserById(1);
         assertNotNull(savedUser);
@@ -67,7 +69,7 @@ class UserDbStorageImplTest {
     void putTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(1, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.put(newUserTwo);
         User savedUser = userService.findUserById(1);
@@ -78,7 +80,7 @@ class UserDbStorageImplTest {
     void addFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.post(newUserTwo);
         userService.addFriends(1, 2);
@@ -92,7 +94,7 @@ class UserDbStorageImplTest {
     void dellFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.post(newUserTwo);
         userService.addFriends(1, 2);
@@ -106,7 +108,7 @@ class UserDbStorageImplTest {
     void getFriendsTest() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.post(newUserTwo);
         userService.addFriends(1, 2);
@@ -121,7 +123,7 @@ class UserDbStorageImplTest {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUserTwo = new User(2, "user2@email.ru", "petia123", "Petia Evanov", LocalDate.of(1993, 4, 12));
         User newUserThree = new User(3, "user3@email.ru", "koliy123", "Kolia Fedorov", LocalDate.of(1998, 2, 22));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.post(newUserTwo);
         userService.post(newUserThree);
