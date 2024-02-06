@@ -292,4 +292,24 @@ public class FilmDbStorageImpl implements FilmStorage {
         }
     }
 
+
+    @Override
+    public Film delete(Integer filmId) {
+        if (filmId == null) {
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+
+        Film film = findFimById(filmId);
+
+        String sqlQueryFg = "DELETE FROM filme_genres WHERE film_id = ? ";
+        String sqlQueryFl = "DELETE FROM film_liks WHERE id_film = ? ";
+        String sqlQueryF = "DELETE FROM films WHERE id = ? ";
+
+        jdbcTemplate.update(sqlQueryFg, filmId);
+        jdbcTemplate.update(sqlQueryFl, filmId);
+        jdbcTemplate.update(sqlQueryF, filmId);
+
+        return film;
+    }
+
 }

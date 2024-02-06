@@ -32,8 +32,8 @@ class FilmDbStorageImplTest {
     private final FilmStorage filmStorage;
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
-    private final JdbcTemplate jdbcTemplate;
     private final DirectorStorage directorStorage;
+    private final JdbcTemplate jdbcTemplate;
 
 
     @Test
@@ -137,8 +137,8 @@ class FilmDbStorageImplTest {
         String films2 = popularFilms.get(1).getName();
         String films3 = popularFilms.get(2).getName();
 
-        Assertions.assertEquals("Film 1", films3);
-        Assertions.assertEquals("Film 3", films1);
+        Assertions.assertEquals("Film 3", films3);
+        Assertions.assertEquals("Film 1", films1);
         Assertions.assertEquals("Film 2", films2);
     }
 
@@ -182,6 +182,17 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage);
+        filmService.post(filmOne);
+        filmService.delete(1);
+        assertThrows(EntityNotFoundException.class, () -> filmService.findFimById(1));
+    }
+
+    @Test
+    public void deleteFilm() {
+        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
+        Mpa mpaOne = new Mpa(1, "G");
+        filmOne.setMpa(mpaOne);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage );
         filmService.post(filmOne);
         filmService.delete(1);
         assertThrows(EntityNotFoundException.class, () -> filmService.findFimById(1));

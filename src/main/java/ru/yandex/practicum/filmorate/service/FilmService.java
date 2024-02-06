@@ -110,4 +110,8 @@ public class FilmService {
         directorStorage.load(filmList);
         return filmList;
     }
+
+    public Film delete(Integer filmId){
+        return filmStorage.delete(filmId);
+    }
 }
