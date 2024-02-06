@@ -137,7 +137,7 @@ class UserDbStorageImplTest {
     @Test
     public void deleteUser() {
         User newUserOne = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
-        UserService userService = new UserService(this.userStorage, friendsUserStorageDB);
+        UserService userService = new UserService(this.userStorage, friendsUserStorageDB, eventStorage);
         userService.post(newUserOne);
         userService.delete(1);
         assertThrows(EntityNotFoundException.class, () -> userService.findUserById(1));
