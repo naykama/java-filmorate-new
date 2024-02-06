@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.UserStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -57,6 +58,19 @@ public class UserDbStorageImpl implements UserStorage {
 
     private RowMapper<User> userRowMapper() {
         return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email"), rs.getString("login"), rs.getString("name"), LocalDate.parse(rs.getString("birthday")));
+    }
+
+    @Override
+    public User delete(Integer userId) {
+        if (userId == null) {
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+        User user = findUserById(userId);
+        String sqlQuery = "DELETE FROM users WHERE id = ? ";
+        if (jdbcTemplate.update(sqlQuery, userId) == 0) {
+            throw new EntityNotFoundException("Юзер с ID=" + userId + " не найден!");
+        }
+        return user;
     }
 
 

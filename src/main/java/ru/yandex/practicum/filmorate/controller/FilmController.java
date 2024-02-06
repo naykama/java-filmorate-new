@@ -4,9 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
+
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -69,6 +70,13 @@ public class FilmController {
         log.info("Выведен список популярных фильмов");
         return filmList;
     }
+
+    @DeleteMapping("/{id}")
+    public Film delete(@PathVariable Integer id) {
+        log.info("Получен DELETE-запрос к эндпоинту: '/films' на удаление фильма с ID={}", id);
+        return filmService.delete(id);
+    }
+
 
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {

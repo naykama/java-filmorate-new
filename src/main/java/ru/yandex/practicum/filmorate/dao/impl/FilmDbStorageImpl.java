@@ -26,6 +26,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
+
     private final JdbcTemplate jdbcTemplate;
 
     @Override
@@ -53,10 +54,12 @@ public class FilmDbStorageImpl implements FilmStorage {
     public Film post(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
+        film.setRate(0);
         Map<String, Object> params = Map.of("name", film.getName(), "description", film.getDescription(), "release_date", film.getReleaseDate().toString(), "duration", film.getDuration(), "rate", film.getRate(), "mpa", film.getMpa().getId());
         Number id = simpleJdbcInsert.executeAndReturnKey(params);
+        film.setRate(0);
         film.setId(id.intValue());
-        setGenresForFilm(film);deleteAndSetDirectorsForFilm(film);
+        setGenresForFilm(film);
         return film;
     }
 
@@ -68,7 +71,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         film.setRate(findFilm.getRate());
         jdbcTemplate.update(sqlUpdate, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         film.setMpa(updateMpa(film.getMpa().getId()));
-        setGenresForFilm(film);deleteAndSetDirectorsForFilm(film);
+        setGenresForFilm(film);
         return film;
     }
 
@@ -84,6 +87,7 @@ public class FilmDbStorageImpl implements FilmStorage {
     public void addLike(int id, int userId) {
         String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
         String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
+        Film filmLik = findFimById(id);
         jdbcTemplate.update(sqlInsert, userId, id);
         jdbcTemplate.update(sqlUpdate, id);
     }
@@ -91,6 +95,7 @@ public class FilmDbStorageImpl implements FilmStorage {
     public void dellLike(int id, int userId) {
         String sqlDell = "DELETE FROM film_liks WHERE id_user = ? AND id_film = ?";
         String sqlUpdate = "update films set rate = (rate - 1) where id = ?";
+        Film filmLik = findFimById(id);
         jdbcTemplate.update(sqlDell, userId, id);
         jdbcTemplate.update(sqlUpdate, id);
     }
@@ -147,6 +152,20 @@ public class FilmDbStorageImpl implements FilmStorage {
             }
         });
     }
+
+    @Override
+    public Film delete(Integer filmId) {
+        if (filmId == null) {
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+        Film film = findFimById(filmId);
+        String sqlQuery = "DELETE FROM films WHERE id = ? ";
+        if (jdbcTemplate.update(sqlQuery, filmId) == 0) {
+            throw new EntityNotFoundException("Фильм с ID=" + filmId + " не найден!");
+        }
+        return film;
+    }
+
 
     private void deleteAndSetDirectorsForFilm(Film film) {
         String sql = "DELETE FROM film_director WHERE film_id = ?";

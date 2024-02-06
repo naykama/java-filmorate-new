@@ -29,7 +29,6 @@ class FilmDbStorageImplTest {
     private final FilmStorage filmStorage;
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
-    private final DirectorStorage directorStorage;
     private final JdbcTemplate jdbcTemplate;
 
 
@@ -157,6 +156,17 @@ class FilmDbStorageImplTest {
         filmService.dellLike(1, 1);
         Film filmAfterLike = filmService.findFimById(1);
         assertTrue(filmAfterLike.getRate() == -1);
+    }
+
+    @Test
+    public void deleteFilm() {
+        Film filmOne = new Film(1, "filmOne", "testDescription", LocalDate.of(2000, 12, 20), 167);
+        Mpa mpaOne = new Mpa(1, "G");
+        filmOne.setMpa(mpaOne);
+        FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage);
+        filmService.post(filmOne);
+        filmService.delete(1);
+        assertThrows(EntityNotFoundException.class, () -> filmService.findFimById(1));
     }
 
     @Test

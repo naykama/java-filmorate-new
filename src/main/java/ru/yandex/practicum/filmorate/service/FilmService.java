@@ -37,7 +37,9 @@ public class FilmService {
     }
 
     public Film findFimById(int id) {
-        return filmStorage.findFimById(id);
+        List<Film> filmList = List.of(filmStorage.findFimById(id));
+        genresStorage.load(filmList);
+        return filmList.get(0);
     }
 
     public Film put(Film film) {
@@ -56,6 +58,10 @@ public class FilmService {
     public void dellLike(int id, int userId) {
         User userLike = userStorage.findUserById(userId);
         filmStorage.dellLike(id, userId);
+    }
+
+    public Film delete(Integer filmId){
+        return filmStorage.delete(filmId);
     }
 
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
