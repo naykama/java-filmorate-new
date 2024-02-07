@@ -60,6 +60,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         film.setRate(0);
         film.setId(id.intValue());
         setGenresForFilm(film);
+        deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
@@ -72,6 +73,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         jdbcTemplate.update(sqlUpdate, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
         film.setMpa(updateMpa(film.getMpa().getId()));
         setGenresForFilm(film);
+        deleteAndSetDirectorsForFilm(film);
         return film;
     }
 
