@@ -78,10 +78,7 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sql = "SELECT f.name, f.release_date, COUNT(fl.id_user) AS likes_count FROM films f" +
-                " JOIN film_liks fl ON f.id = fl.id_film JOIN filme_genres fg ON f.id = fg.film_id" +
-                " JOIN genres g ON fg.genre_id = g.id GROUP BY f.name, f.release_date" +
-                " ORDER BY f.release_date DESC, likes_count DESC LIMIT ?;";
+        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
         if (count == 10) {
             return jdbcTemplate.query(sql, filmRowMapper(), 10);
         } else {

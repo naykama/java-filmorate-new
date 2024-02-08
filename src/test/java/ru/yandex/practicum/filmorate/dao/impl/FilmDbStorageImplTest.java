@@ -126,7 +126,7 @@ class FilmDbStorageImplTest {
 
         String films1 = popularFilms.get(0).getName();
         String films2 = popularFilms.get(1).getName();
-        String films3 = popularFilms.get(3).getName();
+        String films3 = popularFilms.get(2).getName();
 
         Assertions.assertEquals("Film 1", films1);
         Assertions.assertEquals("Film 2", films2);
