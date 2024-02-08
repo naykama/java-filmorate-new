@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +20,11 @@ public class Event {
     private final OperationType operation;
     long timestamp = System.currentTimeMillis();
 
-    public enum EventType {LIKE, REVIEW, FRIEND}
-    public enum OperationType {REMOVE, ADD, UPDATE}
+    public enum EventType {
+        LIKE, REVIEW, FRIEND
+    }
+
+    public enum OperationType {
+        REMOVE, ADD, UPDATE
+    }
 }

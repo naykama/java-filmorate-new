@@ -45,21 +45,22 @@ public class RecommendationServiceTest {
         filmStorage.post(film2);
         filmStorage.post(film3);
         filmStorage.addLike(film1.getId(), user1.getId());
-        film1.setRate(film1.getRate()+1);
+        film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film1.getId(), user2.getId());
-        film1.setRate(film1.getRate()+1);
+        film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film2.getId(), user1.getId());
-        film2.setRate(film2.getRate()+1);
+        film2.setRate(film2.getRate() + 1);
         filmStorage.addLike(film2.getId(), user2.getId());
-        film2.setRate(film2.getRate()+1);
+        film2.setRate(film2.getRate() + 1);
         filmStorage.addLike(film3.getId(), user2.getId());
-        film3.setRate(film3.getRate()+1);
+        film3.setRate(film3.getRate() + 1);
         Set<Film> recommendationListFilms = recommendationService.getRecommendedFilms(user1.getId());
         Set<Film> compareListFilms = new HashSet<>();
         compareListFilms.add(film3);
         assertEquals(1, recommendationListFilms.size());
         assertEquals(recommendationListFilms, compareListFilms);
     }
+
     @Test
     void recommendationFilmListIsEmpty() {
         User user1 = new User(1, "mail1@mail.ru", "Test_user1", "", LocalDate.of(1985, 01, 01));
@@ -105,17 +106,17 @@ public class RecommendationServiceTest {
         filmStorage.post(film2);
         filmStorage.post(film3);
         filmStorage.addLike(film1.getId(), user1.getId());
-        film1.setRate(film1.getRate()+1);
+        film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film1.getId(), user2.getId());
-        film1.setRate(film1.getRate()+1);
+        film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film2.getId(), user1.getId());
-        film2.setRate(film2.getRate()+1);
+        film2.setRate(film2.getRate() + 1);
         filmStorage.addLike(film2.getId(), user2.getId());
-        film2.setRate(film2.getRate()+1);
+        film2.setRate(film2.getRate() + 1);
         filmStorage.addLike(film3.getId(), user1.getId());
-        film3.setRate(film3.getRate()+1);
+        film3.setRate(film3.getRate() + 1);
         filmStorage.addLike(film3.getId(), user2.getId());
-        film3.setRate(film3.getRate()+1);
+        film3.setRate(film3.getRate() + 1);
         Set<Film> recommendationListFilms = recommendationService.getRecommendedFilms(user1.getId());
         assertEquals(0, recommendationListFilms.size());
     }

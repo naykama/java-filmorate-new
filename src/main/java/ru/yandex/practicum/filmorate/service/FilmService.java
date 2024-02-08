@@ -53,7 +53,7 @@ public class FilmService {
         return filmList;
     }
 
-    public List<Film> getMostLikedFilmsByGenreAndYear (int count, int genreId, int year){
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreId, int year) {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
         genresStorage.load(filmList);
         genresStorage.load(filmList);
@@ -111,7 +111,7 @@ public class FilmService {
         return filmList;
     }
 
-    public Film delete(Integer filmId){
+    public Film delete(Integer filmId) {
         return filmStorage.delete(filmId);
     }
 }

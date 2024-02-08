@@ -48,7 +48,7 @@ public class GenresDbStorageImpl implements GenresStorage {
             String inSql = String.join(",", Collections.nCopies(films.size(), "?"));
             final String sqlQuery = "select * from GENRES g, FILME_GENRES fg where fg.GENRE_ID = g.ID  AND fg.FILM_ID  in (" + inSql + ")";
             jdbcTemplate.query(sqlQuery, (rs, rowNum) -> {
-                final Film film = filmById.get(rs.getInt("FILM_ID")); 
+                final Film film = filmById.get(rs.getInt("FILM_ID"));
                 film.getGenres().add(makeGenre(rs, 0));
                 return film;
             }, films.stream().map(Film::getId).toArray());
