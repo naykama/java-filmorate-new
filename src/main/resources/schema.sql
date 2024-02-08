@@ -93,10 +93,7 @@ CREATE TABLE IF NOT EXISTS events (
   operation_type varchar(6),
   friend_id integer DEFAULT NULL,
   film_id integer DEFAULT NULL,
-  review_id integer DEFAULT NULL,
-  FOREIGN KEY (user_id) REFERENCES users (id),
-  FOREIGN KEY (friend_id) REFERENCES users (id),
-  FOREIGN KEY (film_id) REFERENCES films (id)
+  review_id integer DEFAULT NULL
 );
 
 ALTER TABLE events ADD CONSTRAINT one_of_three_is_not_null
