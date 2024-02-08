@@ -129,7 +129,7 @@ public class FilmDbStorageImpl implements FilmStorage {
 
 
     public void addLike(int id, int userId) {
-        String sqlInsert = "insert into film_liks (id_user,id_film) values (?,?)";
+        String sqlInsert = "MERGE INTO film_liks (id_user,id_film) VALUES (?, ?)";
         String sqlUpdate = "update films set rate = (rate + 1) where id = ?";
         Film filmLik = findFimById(id);
         jdbcTemplate.update(sqlInsert, userId, id);
