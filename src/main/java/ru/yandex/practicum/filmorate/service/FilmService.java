@@ -56,8 +56,7 @@ public class FilmService {
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreId, int year) {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
         genresStorage.load(filmList);
-        genresStorage.load(filmList);
-
+        directorStorage.load(filmList);
         return filmList;
     }
 
