@@ -9,6 +9,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @Slf4j
@@ -63,11 +66,11 @@ public class FilmController {
 
 
     @GetMapping("/popular")
-    public List<Film> popular(@RequestParam(defaultValue = "10") int count,
+    public List<Film> popular(@RequestParam(defaultValue = "10") @Positive(message = "Число не может быть отрицательным!") int count,
                               @RequestParam(value = "genreId", defaultValue = "0") int genreId,
                               @RequestParam(value = "year", defaultValue = "0") int year) {
         List<Film> filmList;
-        if (genreId == 0 & year == 0) {
+        if (genreId == 0 && year == 0) {
             filmList = filmService.getPopularFilms(count);
             log.info("Выведен список популярных фильмов");
         } else {

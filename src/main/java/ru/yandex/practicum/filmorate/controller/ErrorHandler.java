@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
+import javax.validation.ConstraintViolationException;
+import javax.validation.ConstraintViolation;
 
 import javax.validation.ConstraintViolationException;
 
@@ -28,7 +30,6 @@ public class ErrorHandler {
         log.debug("Искомый объект не найден 404 Not found {}", e.getMessage());
         return new ErrorResponse(e.getMessage());
     }
-
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
