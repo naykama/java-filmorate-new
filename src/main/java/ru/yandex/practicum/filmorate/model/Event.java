@@ -10,15 +10,15 @@ import javax.validation.constraints.NotNull;
 @RequiredArgsConstructor
 public class Event {
     private int eventId;
-    @NotBlank
+    @NotNull
     private final int userId;
-    @NotBlank
+    @NotNull
     private final int entityId;
     @NotNull
     private final EventType eventType;
     @NotNull
     private final OperationType operation;
-    long timestamp = System.currentTimeMillis();
+    private long timestamp = System.currentTimeMillis();
 
     public enum EventType {
         LIKE, REVIEW, FRIEND
