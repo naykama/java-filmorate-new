@@ -87,7 +87,6 @@ public class FilmController {
         return filmService.delete(id);
     }
 
-
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
         List<Film> filmList = filmService.getСommonFilms(userId, friendId);
@@ -124,7 +123,7 @@ public class FilmController {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> catchValidationException (ConstraintViolationException ex){
+    public ResponseEntity<String> catchValidationException (ConstraintViolationException ex) {
         log.error("Возникла ошибка валидации входного значения");
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
