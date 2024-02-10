@@ -50,11 +50,25 @@ public class FilmService {
         return filmList;
     }
 
-    public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreId, int year) {
+    public List<Film> getMostLikedFilmsByGenreAndYear(int count, Integer genreId, Integer year) {
+        List<Film> filmList;
+        if (genreId == null) {
+            genreId = 0;
+            filmList = popular(count, genreId, year);
+        } else if (year == null) {
+            year = 0;
+            filmList = popular(count, genreId, year);
+        } else {
+            filmList = popular(count, genreId, year);
+        }
+        return filmList;
+    }
+
+    public List<Film> popular(int count, int genreId, int year) {
         List<Film> filmList = filmStorage.getMostLikedFilmsByGenreAndYear(count, genreId, year);
         genresStorage.load(filmList);
         directorStorage.load(filmList);
-        return filmList;
+        return  filmList;
     }
 
     public void addLike(int id, int userId) {

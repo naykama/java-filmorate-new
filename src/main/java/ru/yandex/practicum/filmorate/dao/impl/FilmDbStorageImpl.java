@@ -79,11 +79,7 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     public List<Film> getPopularFilms(int count) {
         String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
-        if (count == 10) {
-            return jdbcTemplate.query(sql, filmRowMapper(), 10);
-        } else {
-            return jdbcTemplate.query(sql, filmRowMapper(), count);
-        }
+        return jdbcTemplate.query(sql, filmRowMapper(), count);
     }
 
     @Override
@@ -263,18 +259,10 @@ public class FilmDbStorageImpl implements FilmStorage {
         }
 
         Film film = findFimById(filmId);
-
-        String sqlQueryFg = "DELETE FROM filme_genres WHERE film_id = ? ";
-        String sqlQueryFl = "DELETE FROM film_liks WHERE id_film = ? ";
         String sqlQueryF = "DELETE FROM films WHERE id = ? ";
-
-        jdbcTemplate.update(sqlQueryFg, filmId);
-        jdbcTemplate.update(sqlQueryFl, filmId);
         jdbcTemplate.update(sqlQueryF, filmId);
-
         return film;
     }
-
 
     private void deleteAndSetDirectorsForFilm(Film film) {
         String sql = "DELETE FROM film_director WHERE film_id = ?";

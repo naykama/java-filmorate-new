@@ -2,13 +2,18 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @Slf4j
@@ -58,16 +63,14 @@ public class FilmController {
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
         filmService.dellLike(id, userId);
         log.info("Фильму под номером \"{}\", удалили лайк, пользователь под номером \"{}\"", id, userId);
-
     }
 
-
     @GetMapping("/popular")
-    public List<Film> popular(@RequestParam(defaultValue = "10") int count,
-                              @RequestParam(value = "genreId", defaultValue = "0") int genreId,
-                              @RequestParam(value = "year", defaultValue = "0") int year) {
+    public List<Film> popular(@RequestParam(defaultValue = "10") @Positive(message = "Число не может быть отрицательным") int count,
+                              @RequestParam(value = "genreId", required = false) Integer genreId,
+                              @RequestParam(value = "year", required = false) @Min(value = 1895, message = "Год должен быть больше 1895") Integer year) {
         List<Film> filmList;
-        if (genreId == 0 & year == 0) {
+        if (genreId == null && year == null) {
             filmList = filmService.getPopularFilms(count);
             log.info("Выведен список популярных фильмов");
         } else {
@@ -82,7 +85,6 @@ public class FilmController {
         log.info("Получен DELETE-запрос к эндпоинту: '/films' на удаление фильма с ID={}", id);
         return filmService.delete(id);
     }
-
 
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
@@ -117,5 +119,11 @@ public class FilmController {
     private enum SortType {
         likes,
         year
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<String> catchValidationException(ConstraintViolationException ex) {
+        log.error("Возникла ошибка валидации входного значения");
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
