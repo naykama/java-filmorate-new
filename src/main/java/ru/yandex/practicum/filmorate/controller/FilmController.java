@@ -92,13 +92,13 @@ public class FilmController {
     }
 
     @GetMapping("/director/{id}")
-    public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam String sortBy) {
+    public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam SortType sortBy) {
         switch (sortBy) {
-            case "likes":
+            case likes:
                 log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по количеству лайков",
                         directorId);
                 return filmService.getFilmsForDirectorSortedByLikes(directorId);
-            case "year":
+            case year:
                 log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по году выпуска", directorId);
                 return filmService.getFilmsForDirectorSortedByYear(directorId);
             default:
@@ -112,5 +112,10 @@ public class FilmController {
         List<Film> filmList = filmService.search(query, by);
         log.info("Выведен список фильмов согласно поиску, по запросу \"{}\"", query);
         return filmList;
+    }
+
+    private enum SortType {
+        likes,
+        year
     }
 }

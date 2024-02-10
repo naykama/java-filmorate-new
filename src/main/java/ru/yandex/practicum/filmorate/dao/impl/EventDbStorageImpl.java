@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.EventStorage;
-import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Event.EventType;
 
@@ -27,31 +26,17 @@ public class EventDbStorageImpl implements EventStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("events")
                                             .usingGeneratedKeyColumns("id");
         Map<String, Object> params = Map.of("user_id", event.getUserId(), "operation_type",
-                                            event.getOperation().toString(), getColumnNameByEventType(event.getEventType()),
+                                            event.getOperation().toString(),  event.getEventType().getColumnName(),
                                             event.getEntityId());
         Number eventId = simpleJdbcInsert.executeAndReturnKey(params);
         event.setEventId(eventId.intValue());
-        log.debug("Создано событие " + event);
+        log.info("Создано событие {}", event);
     }
 
     @Override
     public List<Event> getEventsForUserByID(int userId) {
         String sql = "SELECT * FROM events WHERE user_id = ?";
         return jdbcTemplate.query(sql, eventRowMapper(), userId);
-    }
-
-    private String getColumnNameByEventType(EventType eventType) {
-        switch (eventType) {
-            case LIKE:
-                return "film_id";
-            case FRIEND:
-                return "friend_id";
-            case REVIEW:
-                return "review_id";
-            default:
-                log.error("Введен тип события \"{}\", который не обрабатывается", eventType);
-                throw new EntityNotFoundException(String.format("Тип события: %s не обрабатывается", eventType));
-        }
     }
 
     private RowMapper<Event> eventRowMapper() {

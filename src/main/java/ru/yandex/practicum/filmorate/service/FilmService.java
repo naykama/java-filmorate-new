@@ -4,17 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.*;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Event.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
+
 
 @Slf4j
 @Service
@@ -76,26 +72,18 @@ public class FilmService {
 
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
         directorStorage.findDirectorById(directorId);
-        return findAll().stream()
-                .filter(film -> getDirectorIds(film).contains(directorId))
-                .sorted(Comparator.comparingInt(film -> film.getRate()))
-                .collect(Collectors.toList());
+        List<Film> filmList = filmStorage.getFilmsForDirectorSortedByLikes(directorId);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
     }
 
     public List<Film> getFilmsForDirectorSortedByYear(int directorId) {
         directorStorage.findDirectorById(directorId);
-        return findAll().stream()
-                .filter(film -> getDirectorIds(film).contains(directorId))
-                .sorted(Comparator.comparingInt(film -> film.getReleaseDate().getYear()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Integer> getDirectorIds(Film film) {
-        List<Integer> directorIds = new ArrayList<>();
-        for (Director director : film.getDirectors()) {
-            directorIds.add(director.getId());
-        }
-        return directorIds;
+        List<Film> filmList = filmStorage.getFilmsForDirectorSortedByYear(directorId);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
     }
 
     public List<Film> getСommonFilms(int userId, int friendId) {
