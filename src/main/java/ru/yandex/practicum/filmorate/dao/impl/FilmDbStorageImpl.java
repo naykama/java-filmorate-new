@@ -344,4 +344,26 @@ public class FilmDbStorageImpl implements FilmStorage {
         }
     }
 
+    @Override
+    public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
+        String sql = "SELECT f.*, m.NAME as mpa_name FROM FILMS f\n" +
+                "join mpa m on m.id = f.mpa\n" +
+                "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
+                "WHERE fd.DIRECTOR_ID = ?\n" +
+                "ORDER BY f.RATE;";
+        List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
+        return filmList;
+    }
+
+    @Override
+    public List<Film> getFilmsForDirectorSortedByYear(int directorId) {
+        String sql = "SELECT f.*, m.NAME as mpa_name FROM FILMS f\n" +
+                "join mpa m on m.id = f.mpa\n" +
+                "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
+                "WHERE fd.DIRECTOR_ID = ?\n" +
+                "ORDER BY YEAR(release_date);";
+        List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
+        return filmList;
+    }
+
 }
