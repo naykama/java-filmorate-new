@@ -11,16 +11,16 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.exeption.RecommendationException;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -140,6 +140,63 @@ public class FilmDbStorageImpl implements FilmStorage {
         jdbcTemplate.update(sqlUpdate, id);
     }
 
+    @Override
+    public Set<Film> getRecommendedFilms(Integer userId) {
+        if (userId == null) {
+            throw new RecommendationException("Неверный аргумент!");
+        }
+        Map<Integer, List<Integer>> filmsOfUser = new HashMap<>();
+        List<Integer> userList = jdbcTemplate.query(
+                "SELECT id FROM users",
+                (rs, rowNum) -> rs.getInt("id"));
+        if (userList.isEmpty()) {
+            throw new RecommendationException("В базе нет ниодного пользователя!");
+        }
+        String sql = "SELECT id_user, id_film FROM film_liks WHERE id_film IN (SELECT id_film FROM film_liks)";
+        jdbcTemplate.query(sql, (ResultSet rs) -> {
+            while (rs.next()) {
+                int idUser = rs.getInt("id_user");
+                int filmId = rs.getInt("id_film");
+                if (!filmsOfUser.containsKey(idUser)) {
+                    filmsOfUser.put(idUser, new ArrayList<>());
+                }
+                filmsOfUser.get(idUser).add(filmId);
+            }
+            return null;
+        });
+        long maxMatches = 0;
+        Set<Integer> similarFilms = new HashSet<>();
+        for (Integer id : filmsOfUser.keySet()) {
+            if (id.equals(userId)) {
+                continue;
+            }
+            long countOfMatches = filmsOfUser.get(id).stream()
+                    .filter(filmsOfUser.get(userId)::contains).count();
+            if (countOfMatches == maxMatches) {
+                similarFilms.add(id);
+            }
+            if (countOfMatches > maxMatches & countOfMatches != 0) {
+                maxMatches = countOfMatches;
+                similarFilms = new HashSet<>();
+                similarFilms.add(id);
+            }
+        }
+        if (maxMatches == 0) {
+            return new HashSet<>();
+        } else {
+            return similarFilms.stream().flatMap(idUser -> getFilmListLikes(idUser).stream())
+                    .filter(filmId -> !filmsOfUser.get(userId).contains(filmId))
+                    .map(this::findFimById)
+                    .collect(Collectors.toSet());
+        }
+    }
+
+    private List<Integer> getFilmListLikes(Integer userId) {
+        return jdbcTemplate.query(
+                "SELECT id_film FROM film_liks WHERE id_user = ?",
+                (rs, rowNum) ->
+                        rs.getInt("id_film"), userId);
+    }
 
     private RowMapper<Film> filmRowMapper() {
         return (rs, rowNum) -> {
