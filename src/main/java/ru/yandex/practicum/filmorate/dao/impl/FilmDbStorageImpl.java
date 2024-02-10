@@ -168,9 +168,6 @@ public class FilmDbStorageImpl implements FilmStorage {
             }
             return null;
         });
-        if (filmsOfUser.isEmpty()) {
-            throw new RecommendationException("В базе нет ниодного пользователя, кто поставил лайк фильму!");
-        }
         long maxMatches = 0;
         Set<Integer> similarFilms = new HashSet<>();
         for (Integer id : filmsOfUser.keySet()) {
