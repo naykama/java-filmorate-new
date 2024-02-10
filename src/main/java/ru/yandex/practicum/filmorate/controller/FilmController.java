@@ -63,7 +63,6 @@ public class FilmController {
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
         filmService.dellLike(id, userId);
         log.info("Фильму под номером \"{}\", удалили лайк, пользователь под номером \"{}\"", id, userId);
-
     }
 
     @GetMapping("/popular")
