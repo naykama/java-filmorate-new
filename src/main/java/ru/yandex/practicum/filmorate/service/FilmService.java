@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Event.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -112,5 +113,9 @@ public class FilmService {
 
     public Film delete(Integer filmId) {
         return filmStorage.delete(filmId);
+    }
+
+    public Set<Film> getRecommendedFilms(Integer userId) {
+        return filmStorage.getRecommendedFilms(userId);
     }
 }
