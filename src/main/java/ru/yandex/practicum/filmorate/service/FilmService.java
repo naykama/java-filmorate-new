@@ -57,7 +57,7 @@ public class FilmService {
         } else if (year == null) {
             year = 0;
             filmList = popular(count, genreId, year);
-        }else{
+        } else {
             filmList = popular(count, genreId, year);
         }
         return filmList;
