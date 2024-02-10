@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 import javax.validation.ConstraintViolationException;
-import javax.validation.ConstraintViolation;
-
-import javax.validation.ConstraintViolationException;
 
 @Slf4j
 @RestControllerAdvice

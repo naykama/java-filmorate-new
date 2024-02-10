@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -66,7 +65,6 @@ public class FilmController {
         log.info("Фильму под номером \"{}\", удалили лайк, пользователь под номером \"{}\"", id, userId);
 
     }
-
 
     @GetMapping("/popular")
     public List<Film> popular(@RequestParam(defaultValue = "10") @Positive(message = "Число не может быть отрицательным") int count,
