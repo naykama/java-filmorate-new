@@ -19,7 +19,16 @@ public class Event {
     private long timestamp = System.currentTimeMillis();
 
     public enum EventType {
-        LIKE, REVIEW, FRIEND
+        LIKE("film_id"), REVIEW("review_id"), FRIEND("friend_id");
+        private String columnName;
+
+        EventType(String columnName) {
+            this.columnName = columnName;
+        }
+
+        public String getColumnName() {
+            return columnName;
+        }
     }
 
     public enum OperationType {
