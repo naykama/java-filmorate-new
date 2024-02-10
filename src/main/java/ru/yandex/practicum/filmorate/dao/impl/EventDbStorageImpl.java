@@ -30,7 +30,7 @@ public class EventDbStorageImpl implements EventStorage {
                                             event.getEntityId());
         Number eventId = simpleJdbcInsert.executeAndReturnKey(params);
         event.setEventId(eventId.intValue());
-        log.debug("Создано событие " + event);
+        log.info("Создано событие {}", event);
     }
 
     @Override
