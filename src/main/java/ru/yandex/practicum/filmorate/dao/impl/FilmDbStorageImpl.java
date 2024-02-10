@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
@@ -155,11 +156,20 @@ public class FilmDbStorageImpl implements FilmStorage {
         if (userList.isEmpty()) {
             throw new RecommendationException("В базе нет ниодного пользователя!");
         }
-        for (Integer id : userList) {
-            filmsOfUser.put(id, getFilmListLikes(id));
-        }
+        String sql = "SELECT id_user, id_film FROM film_liks WHERE id_film IN (SELECT id_film FROM film_liks)";
+        jdbcTemplate.query(sql, (ResultSet rs) -> {
+            while (rs.next()) {
+                int idUser = rs.getInt("id_user");
+                int filmId = rs.getInt("id_film");
+                if (!filmsOfUser.containsKey(idUser)) {
+                    filmsOfUser.put(idUser, new ArrayList<>());
+                }
+                filmsOfUser.get(idUser).add(filmId);
+            }
+            return null;
+        });
         if (filmsOfUser.isEmpty()) {
-            throw new RecommendationException("В базе нет фильмов с лайками!");
+            throw new RecommendationException("В базе нет ниодного пользователя, кто поставил лайк фильму!");
         }
         long maxMatches = 0;
         Set<Integer> similarFilms = new HashSet<>();
