@@ -122,7 +122,7 @@ public class FilmController {
     }
 
     @ExceptionHandler
-    public ResponseEntity<String> catchValidationException (ConstraintViolationException ex) {
+    public ResponseEntity<String> catchValidationException(ConstraintViolationException ex) {
         log.error("Возникла ошибка валидации входного значения");
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
