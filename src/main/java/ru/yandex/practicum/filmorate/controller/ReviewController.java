@@ -37,7 +37,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Review updateReview(@RequestBody Review review) {
+    public Review updateReview(@Valid @RequestBody Review review) {
         reviewService.updateReview(review);
         log.info("Получен запрос на обновление отзыв {}", review);
         return review;

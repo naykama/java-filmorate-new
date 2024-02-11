@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.dao.GenresStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exeption.RecommendationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.exeption.IllegalRequestParameterException;
 
@@ -143,14 +142,14 @@ public class FilmDbStorageImpl implements FilmStorage {
     @Override
     public Set<Film> getRecommendedFilms(Integer userId) {
         if (userId == null) {
-            throw new RecommendationException("Неверный аргумент!");
+            throw new EntityNotFoundException("Передан пустой аргумент!");
         }
         Map<Integer, List<Integer>> filmsOfUser = new HashMap<>();
         List<Integer> userList = jdbcTemplate.query(
                 "SELECT id FROM users",
                 (rs, rowNum) -> rs.getInt("id"));
         if (userList.isEmpty()) {
-            throw new RecommendationException("В базе нет ниодного пользователя!");
+            throw new EntityNotFoundException("В базе нет ниодного пользователя!");
         }
         String sql = "SELECT id_user, id_film FROM film_liks WHERE id_film IN (SELECT id_film FROM film_liks)";
         jdbcTemplate.query(sql, (ResultSet rs) -> {
