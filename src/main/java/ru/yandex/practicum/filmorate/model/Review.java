@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ public class Review {
     private int reviewId;
 
     @NotNull(message = "Отзыв должен содержать текст контента")
+    @Size(max = 500)
     private String content;
 
     @JsonProperty("isPositive")
