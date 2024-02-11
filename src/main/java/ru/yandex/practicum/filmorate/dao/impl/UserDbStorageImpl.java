@@ -59,5 +59,15 @@ public class UserDbStorageImpl implements UserStorage {
         return (rs, rowNum) -> new User(rs.getInt("id"), rs.getString("email"), rs.getString("login"), rs.getString("name"), LocalDate.parse(rs.getString("birthday")));
     }
 
+    @Override
+    public User delete(Integer userId) {
+        if (userId == null) {
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
 
+        User user = findUserById(userId);
+        String sqlQueryU = "DELETE FROM users WHERE id = ? ";
+        jdbcTemplate.update(sqlQueryU, userId);
+        return user;
+    }
 }

@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FilmService filmService;
 
     @GetMapping()
     public List<User> findAll() {
@@ -72,5 +75,22 @@ public class UserController {
         return userList;
     }
 
+    @GetMapping("/{id}/feed")
+    public List<Event> getEventsForUserByID(@PathVariable Integer id) {
+        List<Event> eventList = userService.getEventsForUserByID(id);
+        log.info("Cписок событий пользователя \"{}\", размером \"{}\"", id, eventList.size());
+        return eventList;
+    }
 
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendation(@PathVariable Integer id) {
+        log.info("Список рекомендованных фильмов пользователю, \"{}\"", id);
+        return filmService.getRecommendedFilms(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public User delete(@PathVariable Integer id) {
+        log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление юзера с ID={}", id);
+        return userService.delete(id);
+    }
 }
