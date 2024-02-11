@@ -117,7 +117,9 @@ public class FilmService {
         return filmStorage.delete(filmId);
     }
 
-    public Set<Film> getRecommendedFilms(Integer userId) {
-        return filmStorage.getRecommendedFilms(userId);
+    public List<Film> getRecommendedFilms(Integer userId) {
+        List<Film> filmList = new ArrayList<>(filmStorage.getRecommendedFilms(userId));
+        genresStorage.load(filmList);
+        return filmList;
     }
 }
