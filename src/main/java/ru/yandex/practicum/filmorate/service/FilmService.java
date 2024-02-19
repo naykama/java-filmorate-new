@@ -122,4 +122,9 @@ public class FilmService {
         genresStorage.load(filmList);
         return filmList;
     }
+
+    public void addMark(int id, int userId, int mark) {
+        User userLike = userStorage.findUserById(userId);
+        filmStorage.addMark(id, userId, mark);
+    }
 }

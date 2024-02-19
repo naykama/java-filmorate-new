@@ -84,6 +84,15 @@ CREATE TABLE IF NOT EXISTS events (
   review_id integer DEFAULT NULL
 );
 
+CREATE TABLE IF NOT EXISTS marks (
+    film_id integer,
+    user_id integer,
+    mark integer,
+    PRIMARY KEY (film_id, user_id),
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
 ALTER TABLE events ADD CONSTRAINT one_of_three_is_not_null
 CHECK (
     ( CASE WHEN friend_id IS NULL THEN 0 ELSE 1 END

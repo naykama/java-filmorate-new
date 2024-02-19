@@ -357,4 +357,14 @@ public class FilmDbStorageImpl implements FilmStorage {
         return filmList;
     }
 
+    @Override
+    public void addMark(int id, int userId, int mark) {
+        try {
+            jdbcTemplate.update("INSERT INTO marks (film_id, user_id, mark) VALUES (?, ?, ?)", id, userId, mark);
+        } catch (RuntimeException e) {
+            log.error("Ошибка при проставлении оценки пользователем с id = {} фильму с id = {}", userId, id);
+            throw new IllegalRequestParameterException(String.format("Оценка фильму c id = %d уже проставлена автором " +
+                    "c id = %d. Нужно сначала удалить оценку", id, userId));
+        }
+    }
 }

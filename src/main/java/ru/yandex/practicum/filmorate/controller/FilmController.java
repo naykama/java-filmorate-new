@@ -116,6 +116,12 @@ public class FilmController {
         return filmList;
     }
 
+    @PutMapping(value = "/{id}/mark/{userId}")
+    public void addMark(@PathVariable int id, @PathVariable int userId, @RequestParam int mark) {
+        filmService.addMark(id, userId, mark);
+        log.info("Фильму под номером {}, поставил оценку {} пользователь под номером {}", id, mark, userId);
+    }
+
     private enum SortType {
         likes,
         year

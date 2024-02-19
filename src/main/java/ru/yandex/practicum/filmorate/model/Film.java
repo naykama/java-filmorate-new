@@ -24,6 +24,7 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Set<Director> directors;
+    private double markRate;
 
     public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
@@ -35,6 +36,7 @@ public class Film {
         this.genres = new LinkedHashSet<>();
         this.mpa = new Mpa();
         this.directors = new LinkedHashSet<>();
+        this.markRate = 0;
     }
 
     @Override
