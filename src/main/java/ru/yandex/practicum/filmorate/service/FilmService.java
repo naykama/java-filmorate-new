@@ -50,6 +50,34 @@ public class FilmService {
         return filmList;
     }
 
+    public List<Film> getPopularFilmsByMarks(int count) {
+        List<Film> filmList = filmStorage.getPopularFilmsByMarks(count);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getPopularFilmsForGenreByMarks(int genre, int count) {
+        List<Film> filmList = filmStorage.getPopularFilmsForGenreByMarks(genre, count);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getPopularFilmsForYearByMarks(int year, int count) {
+        List<Film> filmList = filmStorage.getPopularFilmsForYearByMarks(year, count);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getPopularFilmsForGenreAndYearByMarks(int year, int genreId, int count) {
+        List<Film> filmList = filmStorage.getPopularFilmsForGenreAndYearByMarks(year, genreId, count);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
+
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, Integer genreId, Integer year) {
         List<Film> filmList;
         if (genreId == null) {
@@ -95,6 +123,14 @@ public class FilmService {
     public List<Film> getFilmsForDirectorSortedByYear(int directorId) {
         directorStorage.findDirectorById(directorId);
         List<Film> filmList = filmStorage.getFilmsForDirectorSortedByYear(directorId);
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
+
+    public List<Film> getFilmsForDirectorSortedByMark(int directorId) {
+        directorStorage.findDirectorById(directorId);
+        List<Film> filmList = filmStorage.getFilmsForDirectorSortedByMark(directorId);
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         return filmList;

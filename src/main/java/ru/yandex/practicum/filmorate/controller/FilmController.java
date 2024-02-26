@@ -80,6 +80,23 @@ public class FilmController {
         return filmList;
     }
 
+    @GetMapping("/popular/marks")
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Positive(message = "Число не может быть отрицательным") int count,
+                              @RequestParam(value = "genreId", required = false) Integer genreId,
+                              @RequestParam(value = "year", required = false) @Min(value = 1895, message = "Год должен быть больше 1895") Integer year) {
+        List<Film> filmList;
+        if (genreId == null && year == null) {
+            filmList = filmService.getPopularFilmsByMarks(count);
+            log.info("Выведен список популярных фильмов");
+        } else {
+            filmList = genreId == null ? filmService.getPopularFilmsForYearByMarks(year, count)
+                    : year == null ? filmService.getPopularFilmsForGenreByMarks(genreId, count)
+                    : filmService.getPopularFilmsForGenreAndYearByMarks(year, genreId, count);
+            log.info("Выполнен GET запрос на получение самых популярных фильмов по жанру и году");
+        }
+        return filmList;
+    }
+
     @DeleteMapping("/{id}")
     public Film delete(@PathVariable Integer id) {
         log.info("Получен DELETE-запрос к эндпоинту: '/films' на удаление фильма с ID={}", id);
@@ -103,6 +120,9 @@ public class FilmController {
             case year:
                 log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по году выпуска", directorId);
                 return filmService.getFilmsForDirectorSortedByYear(directorId);
+            case mark:
+                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по оценкам", directorId);
+                return filmService.getRecommendedByMarksFilms(directorId);
             default:
                 log.error("Ошибка в параметрах запроса. Переданный параметр = \"{}\"", sortBy);
                 throw new IllegalRequestParameterException("Некорректный параметр запроса");
@@ -124,7 +144,8 @@ public class FilmController {
 
     private enum SortType {
         likes,
-        year
+        year,
+        mark
     }
 
     @ExceptionHandler

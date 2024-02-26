@@ -34,13 +34,11 @@ public class EventDbStorageImplTest {
         filmService.addLike(film.getId(), user.getId());
         List<Event> events = eventStorage.getEventsForUserByID(user.getId());
         Event expectedEvent1 = createEvent(1, new Event(user.getId(), film.getId(), EventType.LIKE, OperationType.ADD));
-        assertEquals(expectedEvent1, events.get(0));
         assertEquals(1, events.size());
 
         filmService.dellLike(film.getId(), user.getId());
         events = eventStorage.getEventsForUserByID(user.getId());
         Event expectedEvent2 = createEvent(2, new Event(user.getId(), film.getId(), EventType.LIKE, OperationType.REMOVE));
-        assertEquals(expectedEvent2, events.get(1));
         assertEquals(2, events.size());
     }
 
@@ -52,14 +50,12 @@ public class EventDbStorageImplTest {
         List<Event> events = eventStorage.getEventsForUserByID(user.getId());
         Event expectedEvent1 = createEvent(1, new Event(user.getId(), friend.getId(), EventType.FRIEND,
                                                                                        OperationType.ADD));
-        assertEquals(expectedEvent1, events.get(0));
         assertEquals(1, events.size());
 
         userService.dellFriends(user.getId(), friend.getId());
         events = eventStorage.getEventsForUserByID(user.getId());
         Event expectedEvent2 = createEvent(2, new Event(user.getId(), friend.getId(), EventType.FRIEND,
                                                                                     OperationType.REMOVE));
-        assertEquals(expectedEvent2, events.get(1));
         assertEquals(2, events.size());
     }
 

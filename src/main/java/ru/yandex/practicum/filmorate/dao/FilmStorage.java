@@ -37,4 +37,14 @@ public interface FilmStorage {
     void addMark(int id, int userId, int mark);
 
     Set<Film> getRecommendedByMarksFilms(Integer userId);
+
+    List<Film> getPopularFilmsByMarks(int count);
+
+    List<Film> getPopularFilmsForGenreByMarks(int genreId, int count);
+
+    List<Film> getPopularFilmsForYearByMarks(int year, int count);
+
+    List<Film> getPopularFilmsForGenreAndYearByMarks(int year, int genreId, int count);
+
+    List<Film> getFilmsForDirectorSortedByMark(int directorId);
 }

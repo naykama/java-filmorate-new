@@ -27,19 +27,25 @@ import java.util.stream.Collectors;
 public class FilmDbStorageImpl implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
+    private final String sqlToGetFilmPart1 = "SELECT f.*, m.name as mpa_name, mark_rate.average_rate\n" +
+            "FROM \n" +
+            "films f join mpa m on f.mpa = m.id\n";
+    private final String sqlToGetFilmPart2 = "LEFT JOIN (SELECT ma.film_id AS film_id, AVG(ma.MARK) AS average_rate\n" +
+            "FROM MARKS ma\n" +
+            "GROUP BY ma.FILM_ID) AS mark_rate ON f.id = mark_rate.film_id\n";
+    private final String sqlToGetFilm = sqlToGetFilmPart1 + sqlToGetFilmPart2;
 
     @Override
     public List<Film> findAll() {
-        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by f.id";
-        List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper());
+        List<Film> filmList = jdbcTemplate.query(sqlToGetFilm + "order by f.id;", filmRowMapper());
         return filmList;
     }
 
     @Override
     public Film findFimById(int id) {
-        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id where f.id = ? order by f.id";
         try {
-            List<Film> filmList = List.of(jdbcTemplate.queryForObject(sql, filmRowMapper(), id));
+            List<Film> filmList = List.of(jdbcTemplate.queryForObject(sqlToGetFilm + "where f.id = ? order by f.id;",
+                                            filmRowMapper(), id));
             return filmList.get(0);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка поиска фильма с id \"{}\"", id);
@@ -75,33 +81,49 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getPopularFilms(int count) {
-        String sql = "select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id order by rate desc limit ?";
-        return jdbcTemplate.query(sql, filmRowMapper(), count);
+        return jdbcTemplate.query(sqlToGetFilm + "order by rate desc limit ?", filmRowMapper(), count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsByMarks(int count) {
+        return jdbcTemplate.query(sqlToGetFilm + "order by mark_rate.average_rate desc limit ?",
+                                    filmRowMapper(), count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsForGenreByMarks(int genreId, int count) {
+        return jdbcTemplate.query(sqlToGetFilm + "LEFT JOIN filme_genres AS fg ON f.id = fg.film_id\n" +
+                "WHERE fg.genre_id = ? limit ?", filmRowMapper(), genreId, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsForYearByMarks(int year, int count) {
+        return jdbcTemplate.query(sqlToGetFilm + "WHERE YEAR(release_date) = ? limit ?",
+                                    filmRowMapper(), year, count);
+    }
+
+    @Override
+    public List<Film> getPopularFilmsForGenreAndYearByMarks(int year, int genreId, int count) {
+        return jdbcTemplate.query(sqlToGetFilm + "LEFT JOIN filme_genres AS fg ON f.id = fg.film_id\n" +
+                "WHERE YEAR(release_date) = ? AND fg.genre_id = ? limit ?", filmRowMapper(), year, genreId, count);
     }
 
     @Override
     public List<Film> getMostLikedFilmsByGenreAndYear(int count, int genreID, int year) {
-        String sqlYear = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
-                "FROM films f " +
-                "JOIN mpa m ON m.id = f.mpa " +
+        String sqlYear = sqlToGetFilm +
                 "LEFT JOIN film_liks l on f.id = l.id_film " +
                 "WHERE Extract(year from cast(f.release_date as date)) = ?" +
                 "GROUP BY f.id " +
                 "ORDER BY count(l.id_user) desc " +
                 "limit ?;";
-        String sqlGenre = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
-                "FROM films f " +
-                "JOIN mpa m ON m.id = f.mpa " +
+        String sqlGenre = sqlToGetFilm +
                 "LEFT JOIN film_liks l on f.id = l.id_film " +
                 "JOIN filme_genres fg on f.id = fg.film_id " +
                 "WHERE fg.genre_id = ?" +
                 "GROUP BY f.id " +
                 "ORDER BY count(l.id_user) desc " +
                 "limit ?;";
-        String sqlYearAndGenre = "SELECT f.id, f.name, f.rate, f.description, f.release_date, f.duration, f.mpa, m.name mpa_name " +
-                "FROM films f " +
-                "LEFT JOIN film_liks l on f.id = l.id_film " +
-                "JOIN mpa m ON m.id = f.mpa " +
+        String sqlYearAndGenre = sqlToGetFilm +
                 "JOIN filme_genres fg on f.id = fg.film_id " +
                 "WHERE fg.genre_id = ? and Extract(year from cast(f.release_date as date)) = ?" +
                 "GROUP BY f.id " +
@@ -205,6 +227,9 @@ public class FilmDbStorageImpl implements FilmStorage {
             mpa.setId(rs.getInt("mpa"));
             mpa.setName(rs.getString("mpa_name"));
             film.setMpa(mpa);
+            if (rs.getString("AVERAGE_RATE") != null) {
+                film.setMarkRate(rs.getDouble("AVERAGE_RATE"));
+            }
             return film;
         };
     }
@@ -290,7 +315,9 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getСommonFilms(int userId, int friendId) {
-        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ? INNER JOIN mpa m ON m.id = f.mpa ORDER BY f.rate DESC";
+        String sql = sqlToGetFilmPart1 + "INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ?" +
+                sqlToGetFilmPart2 +
+                "ORDER BY f.rate DESC";
         return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
     }
 
@@ -317,17 +344,23 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> searchByDirector(String query) {
-        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN mpa m ON m.id = f.mpa INNER JOIN film_director fd ON f.id = fd.film_id INNER JOIN directors d ON fd.director_id = d.id WHERE d.name ILIKE CONCAT('%', ?, '%')";
+        String sql = sqlToGetFilmPart1 + "INNER JOIN film_director fd ON f.id = fd.film_id INNER JOIN directors d ON fd.director_id = d.id\n"
+                + sqlToGetFilmPart2
+                + "WHERE d.name ILIKE CONCAT('%', ?, '%')";
         return jdbcTemplate.query(sql, filmRowMapper(), query);
     }
 
     public List<Film> searchByTitle(String query) {
-        String sql = "SELECT f.*, m.name AS mpa_name FROM films f INNER JOIN mpa m ON m.id = f.mpa WHERE f.name ILIKE CONCAT('%', ?, '%')";
-        return jdbcTemplate.query(sql, filmRowMapper(), query);
+        return jdbcTemplate.query(sqlToGetFilm + "WHERE f.name ILIKE CONCAT('%', ?, '%')", filmRowMapper(), query);
     }
 
     public List<Film> searchByDirectorAndTitle(String query, List<String> byList) {
-        String sql = "select f.*, m.name as mpa_name from films f inner join mpa m on m.id = f.mpa where f.name ILIKE CONCAT('%', ?, '%') or f.name = (select f.name from films f inner join film_director fd on f.id = fd.film_id inner join directors d on fd.director_id = d.id where d.name ILIKE CONCAT('%', ?, '%')) order by rate desc";
+        String sql = sqlToGetFilmPart1 +
+                "LEFT JOIN film_director fd ON f.id = fd.film_id\n" +
+                "lEFT JOIN directors d ON fd.director_id = d.id\n" +
+                sqlToGetFilmPart2 +
+                "WHERE d.name ILIKE CONCAT('%', ?, '%') OR f.name ILIKE CONCAT('%', ?, '%')\n" +
+                "Order by rate desc";
         if (byList.contains("title") && byList.contains("director") && byList.size() == 2) {
             return jdbcTemplate.query(sql, filmRowMapper(), query, query);
         } else {
@@ -338,9 +371,9 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
-        String sql = "SELECT f.*, m.NAME as mpa_name FROM FILMS f\n" +
-                "join mpa m on m.id = f.mpa\n" +
+        String sql = sqlToGetFilmPart1 +
                 "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
+                sqlToGetFilmPart2 +
                 "WHERE fd.DIRECTOR_ID = ?\n" +
                 "ORDER BY f.RATE;";
         List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
@@ -349,13 +382,21 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public List<Film> getFilmsForDirectorSortedByYear(int directorId) {
-        String sql = "SELECT f.*, m.NAME as mpa_name FROM FILMS f\n" +
-                "join mpa m on m.id = f.mpa\n" +
+        String sql = sqlToGetFilmPart1 +
                 "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
+                sqlToGetFilmPart2 +
                 "WHERE fd.DIRECTOR_ID = ?\n" +
                 "ORDER BY YEAR(release_date);";
         List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
         return filmList;
+    }
+
+    @Override
+    public List<Film> getFilmsForDirectorSortedByMark(int directorId) {
+        return jdbcTemplate.query(sqlToGetFilm +
+                "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
+                "WHERE fd.DIRECTOR_ID = ?\n" +
+                "ORDER BY average_rate", filmRowMapper(), directorId);
     }
 
     @Override
@@ -409,7 +450,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         );
         String parameters = String.join(",", Collections.nCopies(filmIdForRecommend.size(), "?"));
         List<Film> films = jdbcTemplate.query(
-                String.format("select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id WHERE f.id IN (%s)",
+                String.format(sqlToGetFilm + "WHERE f.id IN (%s)",
                         parameters), filmIdForRecommend.toArray(), filmRowMapper());
         return  new HashSet<>(films);
     }

@@ -254,6 +254,7 @@ class FilmDbStorageImplTest {
         userStorage.post(newUser);
         filmStorage.addLike(2, 1);
         List<Film> filmListTitleAndDirector = filmService.search("iva", "title,director");
+        System.out.println("filmListTitleAndDirector.size() " + filmListTitleAndDirector.size());
         assertTrue(filmListTitleAndDirector.size() == 2);
         assertEquals(filmListTitleAndDirector.get(0).getName(), filmTwo.getName());
         assertEquals(filmListTitleAndDirector.get(1).getName(), filmOne.getName());
