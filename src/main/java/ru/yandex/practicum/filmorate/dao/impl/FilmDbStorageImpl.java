@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmStorage;
 import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
@@ -366,5 +367,77 @@ public class FilmDbStorageImpl implements FilmStorage {
             throw new IllegalRequestParameterException(String.format("Оценка фильму c id = %d уже проставлена автором " +
                     "c id = %d. Нужно сначала удалить оценку", id, userId));
         }
+    }
+
+    public Set<Film> getRecommendedByMarksFilms(Integer userId) {
+        if (userId == null) {
+            log.error("В метод getRecommendedByMarksFilms передан пустой аргумент");
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+        Map<Integer, Mark> marksForMainUser = new HashMap<>();
+        Map<Integer, List<Mark>> marksForEachUser = new HashMap<>();
+        fillMapsForUsers(userId, marksForMainUser, marksForEachUser);
+        int userIdForRecommend = findUserForRecommendation(userId, marksForMainUser, marksForEachUser);
+        return userIdForRecommend == 0 ? new HashSet<>()
+                : getFilmsForRecommendation(marksForMainUser, marksForEachUser.get(userIdForRecommend));
+    }
+
+    private void fillMapsForUsers(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer, List<Mark>> marksForEachUser) {
+        SqlRowSet marksSet = jdbcTemplate.queryForRowSet("SELECT * FROM marks");
+        while (marksSet.next()) {
+            int currentUserId = marksSet.getInt("user_id");
+            Mark mark = new Mark(marksSet.getInt("film_id"), currentUserId, marksSet.getInt("mark"));
+            if (currentUserId == userId) {
+                marksForMainUser.put(mark.getFilmId(), mark);;
+            } else {
+                if (marksForEachUser.containsKey(currentUserId)) {
+                    marksForEachUser.get(currentUserId).add(mark);
+                } else {
+                    marksForEachUser.put(currentUserId, new ArrayList<>());
+                    marksForEachUser.get(currentUserId).add(mark);
+                }
+            }
+        }
+    }
+
+    private Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
+        Set<Integer> filmIdForRecommend = new HashSet<>(marksForRecommendUser
+                .stream()
+                .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > 5)
+                .map(Mark::getFilmId)
+                .collect(Collectors.toList())
+        );
+        String parameters = String.join(",", Collections.nCopies(filmIdForRecommend.size(), "?"));
+        List<Film> films = jdbcTemplate.query(
+                String.format("select f.*, m.name as mpa_name from films f join mpa m on f.mpa = m.id WHERE f.id IN (%s)",
+                        parameters), filmIdForRecommend.toArray(), filmRowMapper());
+        return  new HashSet<>(films);
+    }
+
+    private int findUserForRecommendation(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer,
+                                                                            List<Mark>> marksForEachUser) {
+        Map<Integer, Double> diffMainUserAndOthers = new HashMap<>();
+        for (int currentUserId : marksForEachUser.keySet()) {
+            int commonFilmsCount = 0;
+            for (Mark mark : marksForEachUser.get(currentUserId)) {
+                if (marksForMainUser.containsKey(mark.getFilmId())) {
+                    commonFilmsCount++;
+                    diffMainUserAndOthers.put(currentUserId,
+                            diffMainUserAndOthers.getOrDefault(currentUserId, 0.0)
+                                    + (marksForMainUser.get(mark.getFilmId()).getMark() - mark.getMark()));
+                }
+            }
+            diffMainUserAndOthers.put(currentUserId,
+                    diffMainUserAndOthers.getOrDefault(currentUserId, 0.0) / commonFilmsCount);
+        }
+        int recommendUserId = 0;
+        double minDiff = 11;
+        for (int currentUserId : diffMainUserAndOthers.keySet()) {
+            if (minDiff > Math.abs(diffMainUserAndOthers.get(currentUserId))) {
+                minDiff = Math.abs(diffMainUserAndOthers.get(currentUserId));
+                recommendUserId = currentUserId;
+            }
+        }
+        return recommendUserId;
     }
 }

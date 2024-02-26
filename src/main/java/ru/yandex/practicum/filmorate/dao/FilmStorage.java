@@ -35,4 +35,6 @@ public interface FilmStorage {
     List<Film> getFilmsForDirectorSortedByYear(int directorId);
 
     void addMark(int id, int userId, int mark);
+
+    Set<Film> getRecommendedByMarksFilms(Integer userId);
 }

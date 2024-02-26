@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS films (
   release_date DATE,
   duration integer,
   rate integer,
-  mpa integer
+  mpa integer,
+  mark integer
 );
 
 CREATE TABLE IF NOT EXISTS filme_genres (

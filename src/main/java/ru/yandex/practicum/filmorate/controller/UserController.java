@@ -93,4 +93,10 @@ public class UserController {
         log.info("Получен DELETE-запрос к эндпоинту: '/users' на удаление юзера с ID={}", id);
         return userService.delete(id);
     }
+
+    @GetMapping("/{id}/recommendationsByMarks")
+    public List<Film> getRecommendationByMarks(@PathVariable Integer id) {
+        log.info("Список рекомендованных фильмов пользователю, \"{}\"", id);
+        return filmService.getRecommendedByMarksFilms(id);
+    }
 }

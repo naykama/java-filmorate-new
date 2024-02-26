@@ -127,4 +127,11 @@ public class FilmService {
         User userLike = userStorage.findUserById(userId);
         filmStorage.addMark(id, userId, mark);
     }
+
+    public List<Film> getRecommendedByMarksFilms(Integer userId) {
+        List<Film> filmList = new ArrayList<>(filmStorage.getRecommendedByMarksFilms(userId));
+        genresStorage.load(filmList);
+        directorStorage.load(filmList);
+        return filmList;
+    }
 }
