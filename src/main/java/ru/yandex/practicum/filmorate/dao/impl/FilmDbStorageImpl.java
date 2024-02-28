@@ -27,13 +27,12 @@ import java.util.stream.Collectors;
 public class FilmDbStorageImpl implements FilmStorage {
     private static final short MAX_BAD_MARK = 5;
     private final JdbcTemplate jdbcTemplate;
-    private final String sqlToGetFilmPart1 = "SELECT f.*, m.name as mpa_name, mark_rate.average_rate\n" +
-            "FROM \n" +
-            "films f join mpa m on f.mpa = m.id\n";
-    private final String sqlToGetFilmPart2 = "LEFT JOIN (SELECT ma.film_id AS film_id, AVG(ma.MARK) AS average_rate\n" +
+    private final String sqlToGetFilm = "SELECT f.*, m.name as mpa_name, mark_rate.average_rate\n" +
+            "FROM films f\n" +
+            "JOIN mpa m ON f.mpa = m.id\n" +
+            "LEFT JOIN (SELECT ma.film_id AS film_id, AVG(ma.MARK) AS average_rate\n" +
             "FROM MARKS ma\n" +
             "GROUP BY ma.FILM_ID) AS mark_rate ON f.id = mark_rate.film_id\n";
-    private final String sqlToGetFilm = sqlToGetFilmPart1 + sqlToGetFilmPart2;
 
     @Override
     public List<Film> findAll() {
@@ -312,8 +311,8 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> getСommonFilms(int userId, int friendId) {
-        String sql = sqlToGetFilmPart1 + "INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ? INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ?" +
-                sqlToGetFilmPart2 +
+        String sql = sqlToGetFilm + "INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ?\n" +
+                "INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ?\n" +
                 "ORDER BY f.rate DESC";
         return jdbcTemplate.query(sql, filmRowMapper(), userId, friendId);
     }
@@ -341,8 +340,8 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> searchByDirector(String query) {
-        String sql = sqlToGetFilmPart1 + "INNER JOIN film_director fd ON f.id = fd.film_id INNER JOIN directors d ON fd.director_id = d.id\n"
-                + sqlToGetFilmPart2
+        String sql = sqlToGetFilm + "INNER JOIN film_director fd ON f.id = fd.film_id\n" +
+                "INNER JOIN directors d ON fd.director_id = d.id\n"
                 + "WHERE d.name ILIKE CONCAT('%', ?, '%')";
         return jdbcTemplate.query(sql, filmRowMapper(), query);
     }
@@ -352,10 +351,9 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     public List<Film> searchByDirectorAndTitle(String query, List<String> byList) {
-        String sql = sqlToGetFilmPart1 +
+        String sql = sqlToGetFilm +
                 "LEFT JOIN film_director fd ON f.id = fd.film_id\n" +
                 "lEFT JOIN directors d ON fd.director_id = d.id\n" +
-                sqlToGetFilmPart2 +
                 "WHERE d.name ILIKE CONCAT('%', ?, '%') OR f.name ILIKE CONCAT('%', ?, '%')\n" +
                 "Order by rate desc";
         if (byList.contains("title") && byList.contains("director") && byList.size() == 2) {
@@ -368,22 +366,20 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public List<Film> getFilmsForDirectorSortedByLikes(int directorId) {
-        String sql = sqlToGetFilmPart1 +
+        String sql = sqlToGetFilm +
                 "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
-                sqlToGetFilmPart2 +
                 "WHERE fd.DIRECTOR_ID = ?\n" +
-                "ORDER BY f.RATE;";
+                "ORDER BY f.RATE";
         List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
         return filmList;
     }
 
     @Override
     public List<Film> getFilmsForDirectorSortedByYear(int directorId) {
-        String sql = sqlToGetFilmPart1 +
+        String sql = sqlToGetFilm +
                 "LEFT JOIN FILM_DIRECTOR fd ON f.id = fd.FILM_ID\n" +
-                sqlToGetFilmPart2 +
                 "WHERE fd.DIRECTOR_ID = ?\n" +
-                "ORDER BY YEAR(release_date);";
+                "ORDER BY YEAR(release_date)";
         List<Film> filmList = jdbcTemplate.query(sql, filmRowMapper(), directorId);
         return filmList;
     }
