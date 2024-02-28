@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.*;
+import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mark;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Event.*;
 
@@ -156,7 +158,7 @@ public class FilmService {
     public List<Film> getCommonFilms(int userId, int friendId) {
         User user = userStorage.findUserById(userId);
         User friend = userStorage.findUserById(friendId);
-        List<Film> filmList = filmStorage.getСommonFilms(userId, friendId);
+        List<Film> filmList = filmStorage.getCommonFilms(userId, friendId);
         log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId,
                 friendId, filmList.size());
         return filmList;
@@ -189,10 +191,49 @@ public class FilmService {
     }
 
     public List<Film> getRecommendedByMarksFilms(Integer userId) {
-        List<Film> filmList = new ArrayList<>(filmStorage.getRecommendedByMarksFilms(userId));
+        if (userId == null) {
+            log.error("В метод getRecommendedByMarksFilms передан пустой аргумент");
+            throw new EntityNotFoundException("Передан пустой аргумент!");
+        }
+        Map<Integer, Mark> marksForMainUser = new HashMap<>();
+        Map<Integer, List<Mark>> marksForEachUser = new HashMap<>();
+        filmStorage.fillMapsForUsers(userId, marksForMainUser, marksForEachUser);
+        int userIdForRecommend = findUserForRecommendation(userId, marksForMainUser, marksForEachUser);
+        if (userIdForRecommend == 0) {
+            return new ArrayList<>();
+        }
+        List<Film> filmList = new ArrayList<>(filmStorage.getFilmsForRecommendation(marksForMainUser,
+                                                                        marksForEachUser.get(userIdForRecommend)));
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         log.info("Список рекомендованных фильмов пользователю, \"{}\"", userId);
         return filmList;
+    }
+
+    private int findUserForRecommendation(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer,
+            List<Mark>> marksForEachUser) {
+        Map<Integer, Double> diffMainUserAndOthers = new HashMap<>();
+        for (int currentUserId : marksForEachUser.keySet()) {
+            int commonFilmsCount = 0;
+            for (Mark mark : marksForEachUser.get(currentUserId)) {
+                if (marksForMainUser.containsKey(mark.getFilmId())) {
+                    commonFilmsCount++;
+                    diffMainUserAndOthers.put(currentUserId,
+                            diffMainUserAndOthers.getOrDefault(currentUserId, 0.0)
+                                    + (marksForMainUser.get(mark.getFilmId()).getMark() - mark.getMark()));
+                }
+            }
+            diffMainUserAndOthers.put(currentUserId,
+                    diffMainUserAndOthers.getOrDefault(currentUserId, 0.0) / commonFilmsCount);
+        }
+        int recommendUserId = 0;
+        double minDiff = Double.MAX_VALUE;
+        for (int currentUserId : diffMainUserAndOthers.keySet()) {
+            if (minDiff > Math.abs(diffMainUserAndOthers.get(currentUserId))) {
+                minDiff = Math.abs(diffMainUserAndOthers.get(currentUserId));
+                recommendUserId = currentUserId;
+            }
+        }
+        return recommendUserId;
     }
 }

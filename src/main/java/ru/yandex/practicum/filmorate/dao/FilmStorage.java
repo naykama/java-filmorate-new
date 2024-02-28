@@ -1,8 +1,10 @@
 package ru.yandex.practicum.filmorate.dao;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mark;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface FilmStorage {
@@ -24,7 +26,7 @@ public interface FilmStorage {
 
     Film delete(Integer filmId);
 
-    List<Film> getСommonFilms(int userId, int friendId);
+    List<Film> getCommonFilms(int userId, int friendId);
 
     List<Film> search(String query, String by);
 
@@ -36,8 +38,6 @@ public interface FilmStorage {
 
     void addMark(int id, int userId, int mark);
 
-    Set<Film> getRecommendedByMarksFilms(Integer userId);
-
     List<Film> getPopularFilmsByMarks(int count);
 
     List<Film> getPopularFilmsForGenreByMarks(int genreId, int count);
@@ -47,4 +47,8 @@ public interface FilmStorage {
     List<Film> getPopularFilmsForGenreAndYearByMarks(int year, int genreId, int count);
 
     List<Film> getFilmsForDirectorSortedByMark(int directorId);
+
+    void fillMapsForUsers(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer, List<Mark>> marksForEachUser);
+
+    Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser);
 }

@@ -222,12 +222,12 @@ class FilmDbStorageImplTest {
         filmDbStorage.addLike(1, 1);
         filmDbStorage.addLike(1, 2);
         filmDbStorage.addLike(2, 1);
-        List<Film> films = filmDbStorage.getСommonFilms(1, 2);
+        List<Film> films = filmDbStorage.getCommonFilms(1, 2);
         assertTrue(films.size() == 1);
         assertEquals(films.get(0).getName(), filmOne.getName());
         assertEquals(films.get(0).getDuration(), filmOne.getDuration());
         filmDbStorage.dellLike(1, 1);
-        List<Film> filmsNew = filmDbStorage.getСommonFilms(1, 2);
+        List<Film> filmsNew = filmDbStorage.getCommonFilms(1, 2);
         assertTrue(filmsNew.isEmpty());
     }
 

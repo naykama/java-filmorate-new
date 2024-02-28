@@ -310,7 +310,7 @@ public class FilmDbStorageImpl implements FilmStorage {
         });
     }
 
-    public List<Film> getСommonFilms(int userId, int friendId) {
+    public List<Film> getCommonFilms(int userId, int friendId) {
         String sql = sqlToGetFilm + "INNER JOIN film_liks fl1 ON f.id = fl1.id_film AND fl1.id_user = ?\n" +
                 "INNER JOIN film_liks fl2 ON f.id = fl2.id_film AND fl2.id_user = ?\n" +
                 "ORDER BY f.rate DESC";
@@ -403,20 +403,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         }
     }
 
-    public Set<Film> getRecommendedByMarksFilms(Integer userId) {
-        if (userId == null) {
-            log.error("В метод getRecommendedByMarksFilms передан пустой аргумент");
-            throw new EntityNotFoundException("Передан пустой аргумент!");
-        }
-        Map<Integer, Mark> marksForMainUser = new HashMap<>();
-        Map<Integer, List<Mark>> marksForEachUser = new HashMap<>();
-        fillMapsForUsers(userId, marksForMainUser, marksForEachUser);
-        int userIdForRecommend = findUserForRecommendation(userId, marksForMainUser, marksForEachUser);
-        return userIdForRecommend == 0 ? new HashSet<>()
-                : getFilmsForRecommendation(marksForMainUser, marksForEachUser.get(userIdForRecommend));
-    }
-
-    private void fillMapsForUsers(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer, List<Mark>> marksForEachUser) {
+    @Override
+    public void fillMapsForUsers(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer, List<Mark>> marksForEachUser) {
         SqlRowSet marksSet = jdbcTemplate.queryForRowSet("SELECT * FROM marks");
         while (marksSet.next()) {
             int currentUserId = marksSet.getInt("user_id");
@@ -434,7 +422,8 @@ public class FilmDbStorageImpl implements FilmStorage {
         }
     }
 
-    private Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
+    @Override
+    public Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
         Set<Integer> filmIdForRecommend = marksForRecommendUser
                 .stream()
                 .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > MAX_BAD_MARK)
@@ -445,33 +434,6 @@ public class FilmDbStorageImpl implements FilmStorage {
         List<Film> films = jdbcTemplate.query(
                 String.format(sqlToGetFilm + "WHERE f.id IN (%s)",
                         parameters), filmIdForRecommend.toArray(), filmRowMapper());
-        return  new HashSet<>(films);
-    }
-
-    private int findUserForRecommendation(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer,
-                                                                            List<Mark>> marksForEachUser) {
-        Map<Integer, Double> diffMainUserAndOthers = new HashMap<>();
-        for (int currentUserId : marksForEachUser.keySet()) {
-            int commonFilmsCount = 0;
-            for (Mark mark : marksForEachUser.get(currentUserId)) {
-                if (marksForMainUser.containsKey(mark.getFilmId())) {
-                    commonFilmsCount++;
-                    diffMainUserAndOthers.put(currentUserId,
-                            diffMainUserAndOthers.getOrDefault(currentUserId, 0.0)
-                                    + (marksForMainUser.get(mark.getFilmId()).getMark() - mark.getMark()));
-                }
-            }
-            diffMainUserAndOthers.put(currentUserId,
-                    diffMainUserAndOthers.getOrDefault(currentUserId, 0.0) / commonFilmsCount);
-        }
-        int recommendUserId = 0;
-        double minDiff = Double.MAX_VALUE;
-        for (int currentUserId : diffMainUserAndOthers.keySet()) {
-            if (minDiff > Math.abs(diffMainUserAndOthers.get(currentUserId))) {
-                minDiff = Math.abs(diffMainUserAndOthers.get(currentUserId));
-                recommendUserId = currentUserId;
-            }
-        }
-        return recommendUserId;
+        return new HashSet<>(films);
     }
 }
