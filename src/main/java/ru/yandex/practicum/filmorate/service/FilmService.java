@@ -190,6 +190,16 @@ public class FilmService {
         log.info("Фильму под номером {}, поставил оценку {} пользователь под номером {}", id, mark, userId);
     }
 
+    /**
+     * This method is used to estimate and get the most relevant films for particular user (main user)
+     * It finds users with similar liking by using the Slope One Algorithm
+     * @see <a href="https://ru.wikipedia.org/wiki/Slope_One">Algirithm description</a>
+     * @see <a href="https://www.baeldung.com/java-collaborative-filtering-recommendations">Using algirithm in java</a>
+     * After that it analises the films marked by chosen users and suggest the varies
+     * The films in recommendation are not marked by main user and have positive marks (>5) from chosen users
+     * @param userId User id, who requires recommendations
+     * @return List of films, can be empty
+     */
     public List<Film> getRecommendedByMarksFilms(Integer userId) {
         if (userId == null) {
             log.error("В метод getRecommendedByMarksFilms передан пустой аргумент");
