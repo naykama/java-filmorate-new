@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
-
+    private static final short MAX_BAD_MARK = 5;
     private final JdbcTemplate jdbcTemplate;
     private final String sqlToGetFilmPart1 = "SELECT f.*, m.name as mpa_name, mark_rate.average_rate\n" +
             "FROM \n" +
@@ -37,16 +37,13 @@ public class FilmDbStorageImpl implements FilmStorage {
 
     @Override
     public List<Film> findAll() {
-        List<Film> filmList = jdbcTemplate.query(sqlToGetFilm + "order by f.id;", filmRowMapper());
-        return filmList;
+        return jdbcTemplate.query(sqlToGetFilm + "order by f.id;", filmRowMapper());
     }
 
     @Override
     public Film findFimById(int id) {
         try {
-            List<Film> filmList = List.of(jdbcTemplate.queryForObject(sqlToGetFilm + "where f.id = ? order by f.id;",
-                                            filmRowMapper(), id));
-            return filmList.get(0);
+            return jdbcTemplate.queryForObject(sqlToGetFilm + "where f.id = ? order by f.id;", filmRowMapper(), id);
         } catch (EmptyResultDataAccessException e) {
             log.error("Ошибка поиска фильма с id \"{}\"", id);
             throw new EntityNotFoundException("Нет фильма с id: " + id);
@@ -442,11 +439,11 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     private Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
-        Set<Integer> filmIdForRecommend = new HashSet<>(marksForRecommendUser
+        Set<Integer> filmIdForRecommend = marksForRecommendUser
                 .stream()
-                .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > 5)
+                .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > MAX_BAD_MARK)
                 .map(Mark::getFilmId)
-                .collect(Collectors.toList())
+                .collect(Collectors.toSet()
         );
         String parameters = String.join(",", Collections.nCopies(filmIdForRecommend.size(), "?"));
         List<Film> films = jdbcTemplate.query(
@@ -472,7 +469,7 @@ public class FilmDbStorageImpl implements FilmStorage {
                     diffMainUserAndOthers.getOrDefault(currentUserId, 0.0) / commonFilmsCount);
         }
         int recommendUserId = 0;
-        double minDiff = 11;
+        double minDiff = Double.MAX_VALUE;
         for (int currentUserId : diffMainUserAndOthers.keySet()) {
             if (minDiff > Math.abs(diffMainUserAndOthers.get(currentUserId))) {
                 minDiff = Math.abs(diffMainUserAndOthers.get(currentUserId));
