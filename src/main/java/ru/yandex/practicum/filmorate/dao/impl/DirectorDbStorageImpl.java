@@ -44,7 +44,7 @@ public class DirectorDbStorageImpl implements DirectorStorage {
     }
 
     @Override
-    public Director post(Director director) {
+    public Director createDirector(Director director) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                         .withTableName("directors").usingGeneratedKeyColumns("id");
         Map<String, String> params = Map.of("name", director.getName());
@@ -54,7 +54,7 @@ public class DirectorDbStorageImpl implements DirectorStorage {
     }
 
     @Override
-    public Director put(Director director) {
+    public Director updateDirector(Director director) {
         String sql = "UPDATE directors SET name = ? WHERE id = ?";
         if (jdbcTemplate.update(sql, director.getName(), director.getId()) == 0) {
             throw new EntityNotFoundException("Нет режиссёра с id: " + director.getId());

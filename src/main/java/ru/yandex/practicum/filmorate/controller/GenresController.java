@@ -20,15 +20,11 @@ public class GenresController {
 
     @GetMapping()
     public List<Genre> genresFindAll() {
-        List<Genre> genreList = genresService.genresFindAll();
-        log.info("Список жанров выведен, их количество \"{}\"", genreList.size());
         return genresService.genresFindAll();
     }
 
     @GetMapping("/{id}")
     public Genre genresFindAll(@PathVariable int id) {
-        Genre mpa = genresService.genresFindForId(id);
-        log.info("Жанр под номером \"{}\" выведен", mpa.getId());
         return genresService.genresFindForId(id);
     }
 

@@ -92,7 +92,7 @@ public class EventDbStorageImplTest {
     private void addDataToDB() {
         Film film = new Film(1, "film1", "filmDescr", LocalDate.now(), 30);
         film.setMpa(new Mpa(1, "G"));
-        filmService.post(film);
+        filmService.createFilm(film);
         User user = new User(1, "user1@mail.ru", "user", "user", LocalDate.of(2000, 3,12));
         userService.post(user);
         userService.post(new User(2, "friend@mail.ru", "friend", "", LocalDate.of(1999,

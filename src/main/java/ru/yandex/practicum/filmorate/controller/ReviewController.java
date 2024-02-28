@@ -25,28 +25,22 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public Review getReviewById(@PathVariable int id) {
-        log.info("Получен запрос на вывод отзыва с id {}", id);
         return reviewService.getReviewById(id);
     }
 
     @PostMapping
     public Review addReview(@Valid @RequestBody Review review) {
-        reviewService.addReview(review);
-        log.info("Получен запрос на добавление отзыва {}", review);
-        return review;
+        return reviewService.addReview(review);
     }
 
     @PutMapping
     public Review updateReview(@Valid @RequestBody Review review) {
-        reviewService.updateReview(review);
-        log.info("Получен запрос на обновление отзыв {}", review);
-        return review;
+        return reviewService.updateReview(review);
     }
 
     @DeleteMapping("/{id}")
     public void deleteReview(@PathVariable int id) {
         reviewService.deleteReviewById(id);
-        log.info("Получен запрос на удаление отзыва с id {}", id);
     }
 
     @GetMapping
@@ -54,38 +48,30 @@ public class ReviewController {
                                               @RequestParam(defaultValue = "10") int count) {
         log.info("Получен общий get-запрос");
         if (filmId == null) {
-            log.info("Получен запрос на вывод всех отзывов");
             return reviewService.getAllReviews();
-
         } else {
-            log.info("Получен запрос на вывод {} отзывов для фильма с id {}", count, filmId);
             return reviewService.getReviewsByFilmId(filmId, count);
-
         }
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToReview(@PathVariable int id, @PathVariable int userId) {
         reviewService.addLikeToReview(id, userId);
-        log.info("Получен запрос на добавление лайка отзыву с id {} от пользователя с id {}", id, userId);
     }
 
     @PutMapping("/{id}/dislike/{userId}")
     public void addDislikeToReview(@PathVariable int id, @PathVariable int userId) {
         reviewService.addDislikeToReview(id, userId);
-        log.info("Получен запрос на добавление дизлайка обзору с id {} от пользователя с id {}", id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLikeToReview(@PathVariable int id, @PathVariable int userId) {
         reviewService.deleteLikeToReview(id, userId);
-        log.info("Получен запрос на удаление лайка обзору с id {} от пользователя с id {}", id, userId);
     }
 
     @DeleteMapping("/{id}/dislike/{userId}")
     public void deleteDislikeToReview(@PathVariable int id, @PathVariable int userId) {
         reviewService.deleteDislikeToReview(id, userId);
-        log.info("Удален дизлайк обзору с id {} от пользователя с id {}", id, userId);
     }
 
     @ExceptionHandler

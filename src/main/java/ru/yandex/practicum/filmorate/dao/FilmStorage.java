@@ -8,11 +8,11 @@ import java.util.Set;
 public interface FilmStorage {
     List<Film> findAll();
 
-    Film post(Film film);
+    Film createFilm(Film film);
 
     Film findFimById(int id);
 
-    Film put(Film film);
+    Film updateFilm(Film film);
 
     List<Film> getPopularFilms(int count);
 

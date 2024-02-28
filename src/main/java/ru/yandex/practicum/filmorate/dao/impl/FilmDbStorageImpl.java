@@ -54,7 +54,7 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     @Override
-    public Film post(Film film) {
+    public Film createFilm(Film film) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("films").usingGeneratedKeyColumns("id");
         film.setMpa(updateMpa(film.getMpa().getId()));
         film.setRate(0);
@@ -69,7 +69,7 @@ public class FilmDbStorageImpl implements FilmStorage {
 
 
     @Override
-    public Film put(Film film) {
+    public Film updateFilm(Film film) {
         String sqlUpdate = "update films set  name = ?, description = ?,release_date = ?,duration = ?,rate = ?, mpa = ? where id = ?";
         Film findFilm = findFimById(film.getId());
         film.setRate(findFilm.getRate());

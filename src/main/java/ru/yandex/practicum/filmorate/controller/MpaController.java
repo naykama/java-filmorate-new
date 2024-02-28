@@ -20,15 +20,11 @@ public class MpaController {
 
     @GetMapping()
     public List<Mpa> mpaFindAll() {
-        List<Mpa> mpaList = mpaService.mpaFindAll();
-        log.info("Список рейтингов выведен, их количество \"{}\"", mpaList.size());
-        return mpaList;
+        return mpaService.mpaFindAll();
     }
 
     @GetMapping("/{id}")
     public Mpa mpaFindAll(@PathVariable int id) {
-        Mpa mpa = mpaService.findMpaForId(id);
-        log.info("Рейтинг под номером \"{}\" выведен", mpa.getId());
-        return mpa;
+        return mpaService.findMpaForId(id);
     }
 }
