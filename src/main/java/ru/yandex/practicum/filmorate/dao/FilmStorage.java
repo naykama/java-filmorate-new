@@ -50,5 +50,5 @@ public interface FilmStorage {
 
     void fillMapsForUsers(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer, List<Mark>> marksForEachUser);
 
-    Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser);
+    List<Film> getFilmsForRecommendation(Set<Integer> filmIdsForRecommendation);
 }

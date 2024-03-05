@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.*;
-import ru.yandex.practicum.filmorate.exeption.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mark;
@@ -12,12 +11,14 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Event.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FilmService {
+    private static final short MAX_BAD_MARK = 5;
     private final FilmStorage filmStorage;
     private final GenresStorage genresStorage;
     private final UserStorage userStorage;
@@ -203,47 +204,47 @@ public class FilmService {
     public List<Film> getRecommendedByMarksFilms(Integer userId) {
         if (userId == null) {
             log.error("В метод getRecommendedByMarksFilms передан пустой аргумент");
-            throw new EntityNotFoundException("Передан пустой аргумент!");
+            throw new IllegalArgumentException("Передан пустой аргумент!");
         }
         Map<Integer, Mark> marksForMainUser = new HashMap<>();
         Map<Integer, List<Mark>> marksForEachUser = new HashMap<>();
         filmStorage.fillMapsForUsers(userId, marksForMainUser, marksForEachUser);
-        int userIdForRecommend = findUserForRecommendation(userId, marksForMainUser, marksForEachUser);
-        if (userIdForRecommend == 0) {
+        int userIdForRecommendation = findUserForRecommendation(marksForMainUser, marksForEachUser);
+        if (userIdForRecommendation == 0) {
             return new ArrayList<>();
         }
-        List<Film> filmList = new ArrayList<>(filmStorage.getFilmsForRecommendation(marksForMainUser,
-                                                                        marksForEachUser.get(userIdForRecommend)));
+        List<Film> filmList = filmStorage.getFilmsForRecommendation(
+                getFilmIdsForRecommendation(marksForMainUser, marksForEachUser.get(userIdForRecommendation)));
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         log.info("Список рекомендованных фильмов пользователю, \"{}\"", userId);
         return filmList;
     }
 
-    private int findUserForRecommendation(int userId, Map<Integer, Mark> marksForMainUser, Map<Integer,
-            List<Mark>> marksForEachUser) {
-        Map<Integer, Double> diffMainUserAndOthers = new HashMap<>();
-        for (int currentUserId : marksForEachUser.keySet()) {
-            int commonFilmsCount = 0;
-            for (Mark mark : marksForEachUser.get(currentUserId)) {
-                if (marksForMainUser.containsKey(mark.getFilmId())) {
-                    commonFilmsCount++;
-                    diffMainUserAndOthers.put(currentUserId,
-                            diffMainUserAndOthers.getOrDefault(currentUserId, 0.0)
-                                    + (marksForMainUser.get(mark.getFilmId()).getMark() - mark.getMark()));
-                }
-            }
-            diffMainUserAndOthers.put(currentUserId,
-                    diffMainUserAndOthers.getOrDefault(currentUserId, 0.0) / commonFilmsCount);
-        }
-        int recommendUserId = 0;
-        double minDiff = Double.MAX_VALUE;
-        for (int currentUserId : diffMainUserAndOthers.keySet()) {
-            if (minDiff > Math.abs(diffMainUserAndOthers.get(currentUserId))) {
-                minDiff = Math.abs(diffMainUserAndOthers.get(currentUserId));
-                recommendUserId = currentUserId;
-            }
-        }
-        return recommendUserId;
+    private int findUserForRecommendation(Map<Integer, Mark> marksForMainUser, Map<Integer,
+                                                            List<Mark>> marksForEachUser) {
+        return marksForEachUser.entrySet().stream()
+                .filter(entry -> getAvgForUser(entry.getValue(), marksForMainUser) != -1)
+                .map(entry -> Map.entry(entry.getKey(), Math.abs(getAvgForUser(entry.getValue(), marksForMainUser))))
+                .min(Comparator.comparingDouble(Map.Entry::getValue))
+                .get().getKey();
+    }
+
+    private double getAvgForUser(List<Mark> marksForUser, Map<Integer, Mark> marksForMainUser) {
+        return marksForUser.stream()
+                    .filter(mark -> marksForMainUser.containsKey(mark.getFilmId()))
+                    .map(mark -> mark.getMark() - marksForMainUser.get(mark.getFilmId()).getMark())
+                    .mapToDouble(Integer::doubleValue)
+                    .average()
+                    .orElse(-1);
+    }
+
+    private Set<Integer> getFilmIdsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
+        return marksForRecommendUser
+                .stream()
+                .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > MAX_BAD_MARK)
+                .map(Mark::getFilmId)
+                .collect(Collectors.toSet()
+                );
     }
 }

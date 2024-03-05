@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FilmDbStorageImpl implements FilmStorage {
-    private static final short MAX_BAD_MARK = 5;
+
     private final JdbcTemplate jdbcTemplate;
     private final String sqlToGetFilm = "SELECT f.*, m.name as mpa_name, mark_rate.average_rate\n" +
             "FROM films f\n" +
@@ -398,8 +398,9 @@ public class FilmDbStorageImpl implements FilmStorage {
             jdbcTemplate.update("INSERT INTO marks (film_id, user_id, mark) VALUES (?, ?, ?)", id, userId, mark);
         } catch (RuntimeException e) {
             log.error("Ошибка при проставлении оценки пользователем с id = {} фильму с id = {}", userId, id);
-            throw new IllegalRequestParameterException(String.format("Оценка фильму c id = %d уже проставлена автором " +
-                    "c id = %d. Нужно сначала удалить оценку", id, userId));
+            throw new IllegalRequestParameterException(
+                    String.format("Ошибка при проставлении оценки пользователем с id = %d фильму с id = %d", userId, id)
+            );
         }
     }
 
@@ -423,17 +424,10 @@ public class FilmDbStorageImpl implements FilmStorage {
     }
 
     @Override
-    public Set<Film> getFilmsForRecommendation(Map<Integer, Mark> marksForMainUser, List<Mark> marksForRecommendUser) {
-        Set<Integer> filmIdForRecommend = marksForRecommendUser
-                .stream()
-                .filter(mark -> !marksForMainUser.containsKey(mark.getFilmId()) && mark.getMark() > MAX_BAD_MARK)
-                .map(Mark::getFilmId)
-                .collect(Collectors.toSet()
-        );
-        String parameters = String.join(",", Collections.nCopies(filmIdForRecommend.size(), "?"));
-        List<Film> films = jdbcTemplate.query(
+    public List<Film> getFilmsForRecommendation(Set<Integer> filmIdsForRecommendation) {
+        String parameters = String.join(",", Collections.nCopies(filmIdsForRecommendation.size(), "?"));
+        return jdbcTemplate.query(
                 String.format(sqlToGetFilm + "WHERE f.id IN (%s)",
-                        parameters), filmIdForRecommend.toArray(), filmRowMapper());
-        return new HashSet<>(films);
+                        parameters), filmIdsForRecommendation.toArray(), filmRowMapper());
     }
 }
