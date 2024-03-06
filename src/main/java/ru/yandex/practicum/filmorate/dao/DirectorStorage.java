@@ -10,9 +10,9 @@ public interface DirectorStorage {
 
     Director findDirectorById(int id);
 
-    Director post(Director director);
+    Director createDirector(Director director);
 
-    Director put(Director director);
+    Director updateDirector(Director director);
 
     void delDirectorById(int id);
 

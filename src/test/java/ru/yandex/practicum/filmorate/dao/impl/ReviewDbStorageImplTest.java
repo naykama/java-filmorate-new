@@ -41,7 +41,7 @@ public class ReviewDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         film.setMpa(mpaOne);
 
-        filmStorage.post(film);
+        filmStorage.createFilm(film);
         userStorage.post(user);
         reviewStorage.addReview(review);
 
@@ -66,7 +66,7 @@ public class ReviewDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         film.setMpa(mpaOne);
 
-        filmStorage.post(film);
+        filmStorage.createFilm(film);
         userStorage.post(user);
         reviewStorage.addReview(review);
 
@@ -94,7 +94,7 @@ public class ReviewDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         film.setMpa(mpaOne);
 
-        filmStorage.post(film);
+        filmStorage.createFilm(film);
         userStorage.post(user);
         reviewStorage.addReview(review);
 
@@ -122,8 +122,8 @@ public class ReviewDbStorageImplTest {
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaOne);
 
-        filmStorage.post(filmOne);
-        filmStorage.post(filmTwo);
+        filmStorage.createFilm(filmOne);
+        filmStorage.createFilm(filmTwo);
         userStorage.post(userOne);
         userStorage.post(userTwo);
         reviewStorage.addReview(reviewOne);
@@ -154,8 +154,8 @@ public class ReviewDbStorageImplTest {
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaOne);
 
-        filmStorage.post(filmOne);
-        filmStorage.post(filmTwo);
+        filmStorage.createFilm(filmOne);
+        filmStorage.createFilm(filmTwo);
         userStorage.post(userOne);
         userStorage.post(userTwo);
         reviewStorage.addReview(reviewOne);
@@ -189,7 +189,7 @@ public class ReviewDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         film.setMpa(mpaOne);
 
-        filmStorage.post(film);
+        filmStorage.createFilm(film);
         userStorage.post(user);
         reviewStorage.addReview(review);
 
@@ -215,7 +215,7 @@ public class ReviewDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         film.setMpa(mpaOne);
 
-        filmStorage.post(film);
+        filmStorage.createFilm(film);
         userStorage.post(user);
         reviewStorage.addReview(review);
 

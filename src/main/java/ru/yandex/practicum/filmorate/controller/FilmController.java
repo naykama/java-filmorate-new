@@ -27,42 +27,32 @@ public class FilmController {
 
     @GetMapping()
     public List<Film> findAll() {
-        List<Film> filmList = filmService.findAll();
-        log.info("Список фильмов выведен, их количество \"{}\"", filmList.size());
-        return filmList;
+        return filmService.findAll();
     }
 
     @GetMapping("/{id}")
     public Film findFimById(@PathVariable int id) {
-        Film film = filmService.findFimById(id);
-        log.info("Фильм под номером \"{}\" выведен", film.getId());
-        return film;
+        return filmService.findFimById(id);
     }
 
     @PostMapping()
-    public Film post(@Valid @RequestBody Film film) {
-        Film filmPost = filmService.post(film);
-        log.info("Фильм под номером \"{}\" добавлен", film.getId());
-        return filmPost;
+    public Film createFilm(@Valid @RequestBody Film film) {
+        return filmService.createFilm(film);
     }
 
     @PutMapping()
-    public Film put(@Valid @RequestBody Film film) {
-        Film filmPut = filmService.put(film);
-        log.info("Фильм под номером \"{}\" обновлен", film.getId());
-        return filmPut;
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
     @PutMapping(value = "/{id}/like/{userId}")
     public void addLike(@PathVariable int id, @PathVariable int userId) {
         filmService.addLike(id, userId);
-        log.info("Фильму под номером \"{}\", поставил лайк, пользователь под номером \"{}\"", id, userId);
     }
 
     @DeleteMapping(value = "/{id}/like/{userId}")
     public void dellLike(@PathVariable int id, @PathVariable int userId) {
         filmService.dellLike(id, userId);
-        log.info("Фильму под номером \"{}\", удалили лайк, пользователь под номером \"{}\"", id, userId);
     }
 
     @GetMapping("/popular")
@@ -72,37 +62,46 @@ public class FilmController {
         List<Film> filmList;
         if (genreId == null && year == null) {
             filmList = filmService.getPopularFilms(count);
-            log.info("Выведен список популярных фильмов");
         } else {
-            log.info("Получен GET запрос на получение самых популярных фильмов по жанру и году");
             return filmService.getMostLikedFilmsByGenreAndYear(count, genreId, year);
+        }
+        return filmList;
+    }
+
+    @GetMapping("/popular/marks")
+    public List<Film> getPopular(@RequestParam(defaultValue = "10") @Positive(message = "Число не может быть отрицательным") int count,
+                              @RequestParam(value = "genreId", required = false) Integer genreId,
+                              @RequestParam(value = "year", required = false) @Min(value = 1895, message = "Год должен быть больше 1895") Integer year) {
+        List<Film> filmList;
+        if (genreId == null && year == null) {
+            filmList = filmService.getPopularFilmsByMarks(count);
+        } else {
+            filmList = genreId == null ? filmService.getPopularFilmsForYearByMarks(year, count)
+                    : year == null ? filmService.getPopularFilmsForGenreByMarks(genreId, count)
+                    : filmService.getPopularFilmsForGenreAndYearByMarks(year, genreId, count);
         }
         return filmList;
     }
 
     @DeleteMapping("/{id}")
     public Film delete(@PathVariable Integer id) {
-        log.info("Получен DELETE-запрос к эндпоинту: '/films' на удаление фильма с ID={}", id);
         return filmService.delete(id);
     }
 
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
-        List<Film> filmList = filmService.getСommonFilms(userId, friendId);
-        log.info("Выведен список совместных фильмов пользователей под id \"{}\" и \"{}\", размер списка: \"{}\"", userId, friendId, filmList.size());
-        return filmList;
+        return filmService.getCommonFilms(userId, friendId);
     }
 
     @GetMapping("/director/{id}")
     public List<Film> getFilmsForDirectorSorted(@PathVariable("id") int directorId, @RequestParam SortType sortBy) {
         switch (sortBy) {
             case likes:
-                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по количеству лайков",
-                        directorId);
                 return filmService.getFilmsForDirectorSortedByLikes(directorId);
             case year:
-                log.info("Выведен список фильмов режиссёра с id = \"{}\", отсортированный по году выпуска", directorId);
                 return filmService.getFilmsForDirectorSortedByYear(directorId);
+            case mark:
+                return filmService.getRecommendedByMarksFilms(directorId);
             default:
                 log.error("Ошибка в параметрах запроса. Переданный параметр = \"{}\"", sortBy);
                 throw new IllegalRequestParameterException("Некорректный параметр запроса");
@@ -111,14 +110,18 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<Film> search(@RequestParam String query, @RequestParam String by) {
-        List<Film> filmList = filmService.search(query, by);
-        log.info("Выведен список фильмов согласно поиску, по запросу \"{}\"", query);
-        return filmList;
+        return filmService.search(query, by);
+    }
+
+    @PutMapping(value = "/{id}/mark/{userId}")
+    public void addMark(@PathVariable int id, @PathVariable int userId, @RequestParam int mark) {
+        filmService.addMark(id, userId, mark);
     }
 
     private enum SortType {
         likes,
-        year
+        year,
+        mark
     }
 
     @ExceptionHandler

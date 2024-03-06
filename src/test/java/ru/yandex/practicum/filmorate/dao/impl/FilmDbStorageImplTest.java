@@ -43,8 +43,8 @@ class FilmDbStorageImplTest {
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmOne);
-        filmDbStorage.post(filmTwo);
+        filmDbStorage.createFilm(filmOne);
+        filmDbStorage.createFilm(filmTwo);
         List<Film> filmList = filmDbStorage.findAll();
         assertFalse(filmList.isEmpty());
         assertTrue(filmList.size() == 2);
@@ -58,7 +58,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmOne);
+        filmDbStorage.createFilm(filmOne);
         Film film = filmDbStorage.findFimById(1);
         assertNotNull(film);
         assertEquals(film, filmOne);
@@ -71,7 +71,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmOne);
+        filmDbStorage.createFilm(filmOne);
         Film film = filmDbStorage.findFimById(1);
         assertEquals(film, filmOne);
         assertEquals(film.getName(), filmOne.getName());
@@ -87,7 +87,7 @@ class FilmDbStorageImplTest {
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmTwo);
+        filmDbStorage.createFilm(filmTwo);
         Film film = filmDbStorage.findFimById(1);
         assertEquals(film, filmTwo);
     }
@@ -109,9 +109,9 @@ class FilmDbStorageImplTest {
         User user2 = new User(2, "user2@example.com", "user2", "User 2", LocalDate.of(1990, 2, 1));
         User user3 = new User(3, "user3@example.com", "user3", "User 3", LocalDate.of(1990, 3, 1));
 
-        filmDbStorage.post(film1);
-        filmDbStorage.post(film2);
-        filmDbStorage.post(film3);
+        filmDbStorage.createFilm(film1);
+        filmDbStorage.createFilm(film2);
+        filmDbStorage.createFilm(film3);
 
         userDbStorage.post(user1);
         userDbStorage.post(user2);
@@ -139,7 +139,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
-        filmService.post(filmOne);
+        filmService.createFilm(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
         userStorage.post(newUser);
@@ -156,7 +156,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
-        filmService.post(filmOne);
+        filmService.createFilm(filmOne);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
         userStorage.post(newUser);
@@ -173,7 +173,7 @@ class FilmDbStorageImplTest {
         Mpa mpaOne = new Mpa(1, "G");
         filmOne.setMpa(mpaOne);
         FilmService filmService = new FilmService(filmStorage,genresStorage,userStorage, directorStorage, eventStorage);
-        filmService.post(filmOne);
+        filmService.createFilm(filmOne);
         filmService.delete(1);
         assertThrows(EntityNotFoundException.class, () -> filmService.findFimById(1));
     }
@@ -189,12 +189,12 @@ class FilmDbStorageImplTest {
         filmOne.setMpa(mpa);
         filmTwo.setMpa(mpa);
         filmThree.setMpa(mpa);
-        directorStorage.post(director);
+        directorStorage.createDirector(director);
         filmOne.getDirectors().add(director);
         filmTwo.getDirectors().add(director);
-        filmService.post(filmOne);
-        filmService.post(filmTwo);
-        filmService.post(filmThree);
+        filmService.createFilm(filmOne);
+        filmService.createFilm(filmTwo);
+        filmService.createFilm(filmThree);
         List<Film> filmsSortedByYear = filmService.getFilmsForDirectorSortedByYear(1);
 
         assertEquals(2, filmsSortedByYear.size());
@@ -212,8 +212,8 @@ class FilmDbStorageImplTest {
         filmOne.setMpa(mpaOne);
         filmTwo.setMpa(mpaTwo);
         FilmStorage filmDbStorage = new FilmDbStorageImpl(jdbcTemplate);
-        filmDbStorage.post(filmOne);
-        filmDbStorage.post(filmTwo);
+        filmDbStorage.createFilm(filmOne);
+        filmDbStorage.createFilm(filmTwo);
         User newUser = new User(1, "user@email.ru", "vanya123", "Ivan Petrov", LocalDate.of(1990, 1, 1));
         User newUser2 = new User(2, "user2@email.ru", "petya", "Petia Petrov", LocalDate.of(1990, 1, 1));
         UserStorage userStorage = new UserDbStorageImpl(jdbcTemplate);
@@ -222,12 +222,12 @@ class FilmDbStorageImplTest {
         filmDbStorage.addLike(1, 1);
         filmDbStorage.addLike(1, 2);
         filmDbStorage.addLike(2, 1);
-        List<Film> films = filmDbStorage.getСommonFilms(1, 2);
+        List<Film> films = filmDbStorage.getCommonFilms(1, 2);
         assertTrue(films.size() == 1);
         assertEquals(films.get(0).getName(), filmOne.getName());
         assertEquals(films.get(0).getDuration(), filmOne.getDuration());
         filmDbStorage.dellLike(1, 1);
-        List<Film> filmsNew = filmDbStorage.getСommonFilms(1, 2);
+        List<Film> filmsNew = filmDbStorage.getCommonFilms(1, 2);
         assertTrue(filmsNew.isEmpty());
     }
 
@@ -240,10 +240,10 @@ class FilmDbStorageImplTest {
         Director director = new Director(1, "Ivanov");
         filmOne.setMpa(mpa);
         filmTwo.setMpa(mpa);
-        directorStorage.post(director);
+        directorStorage.createDirector(director);
         filmOne.getDirectors().add(director);
-        filmService.post(filmOne);
-        filmService.post(filmTwo);
+        filmService.createFilm(filmOne);
+        filmService.createFilm(filmTwo);
         List<Film> filmListDirector = filmService.search("iva", "director");
         assertTrue(filmListDirector.contains(filmOne));
 
@@ -254,6 +254,7 @@ class FilmDbStorageImplTest {
         userStorage.post(newUser);
         filmStorage.addLike(2, 1);
         List<Film> filmListTitleAndDirector = filmService.search("iva", "title,director");
+        System.out.println("filmListTitleAndDirector.size() " + filmListTitleAndDirector.size());
         assertTrue(filmListTitleAndDirector.size() == 2);
         assertEquals(filmListTitleAndDirector.get(0).getName(), filmTwo.getName());
         assertEquals(filmListTitleAndDirector.get(1).getName(), filmOne.getName());
@@ -276,9 +277,9 @@ class FilmDbStorageImplTest {
         FilmStorage filmStorage = new FilmDbStorageImpl(jdbcTemplate);
         userStorage.post(user1);
         userStorage.post(user2);
-        filmStorage.post(film1);
-        filmStorage.post(film2);
-        filmStorage.post(film3);
+        filmStorage.createFilm(film1);
+        filmStorage.createFilm(film2);
+        filmStorage.createFilm(film3);
         filmStorage.addLike(film1.getId(), user1.getId());
         film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film1.getId(), user2.getId());
@@ -313,9 +314,9 @@ class FilmDbStorageImplTest {
         FilmStorage filmStorage = new FilmDbStorageImpl(jdbcTemplate);
         userStorage.post(user1);
         userStorage.post(user2);
-        filmStorage.post(film1);
-        filmStorage.post(film2);
-        filmStorage.post(film3);
+        filmStorage.createFilm(film1);
+        filmStorage.createFilm(film2);
+        filmStorage.createFilm(film3);
         Set<Film> recommendationListFilms = filmStorage.getRecommendedFilms(user1.getId());
         assertEquals(0, recommendationListFilms.size());
     }
@@ -337,9 +338,9 @@ class FilmDbStorageImplTest {
         FilmStorage filmStorage = new FilmDbStorageImpl(jdbcTemplate);
         userStorage.post(user1);
         userStorage.post(user2);
-        filmStorage.post(film1);
-        filmStorage.post(film2);
-        filmStorage.post(film3);
+        filmStorage.createFilm(film1);
+        filmStorage.createFilm(film2);
+        filmStorage.createFilm(film3);
         filmStorage.addLike(film1.getId(), user1.getId());
         film1.setRate(film1.getRate() + 1);
         filmStorage.addLike(film1.getId(), user2.getId());

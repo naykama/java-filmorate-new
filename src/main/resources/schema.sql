@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS films (
   release_date DATE,
   duration integer,
   rate integer,
-  mpa integer
+  mpa integer,
+  mark integer
 );
 
 CREATE TABLE IF NOT EXISTS filme_genres (
@@ -82,6 +83,15 @@ CREATE TABLE IF NOT EXISTS events (
   friend_id integer DEFAULT NULL,
   film_id integer DEFAULT NULL,
   review_id integer DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS marks (
+    film_id integer,
+    user_id integer,
+    mark integer,
+    PRIMARY KEY (film_id, user_id),
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 ALTER TABLE events ADD CONSTRAINT one_of_three_is_not_null
