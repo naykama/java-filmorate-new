@@ -397,9 +397,11 @@ public class FilmDbStorageImpl implements FilmStorage {
         try {
             jdbcTemplate.update("INSERT INTO marks (film_id, user_id, mark) VALUES (?, ?, ?)", id, userId, mark);
         } catch (RuntimeException e) {
-            log.error("Ошибка при проставлении оценки пользователем с id = {} фильму с id = {}", userId, id);
+            log.error("Ошибка при проставлении оценки пользователем с id = {} фильму с id = {}. Сообщение: {}", userId,
+                    id, e.getMessage());
             throw new IllegalRequestParameterException(
-                    String.format("Ошибка при проставлении оценки пользователем с id = %d фильму с id = %d", userId, id)
+                    String.format("Ошибка при проставлении оценки пользователем с id = %d фильму с id = %d. Сообщение: %s",
+                            userId, id, e.getMessage())
             );
         }
     }

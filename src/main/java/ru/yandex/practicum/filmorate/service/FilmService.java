@@ -213,8 +213,9 @@ public class FilmService {
         if (userIdForRecommendation == 0) {
             return new ArrayList<>();
         }
-        List<Film> filmList = filmStorage.getFilmsForRecommendation(
-                getFilmIdsForRecommendation(marksForMainUser, marksForEachUser.get(userIdForRecommendation)));
+        Set<Integer> filmIdsForRecommendation = getFilmIdsForRecommendation(marksForMainUser,
+                                                                            marksForEachUser.get(userIdForRecommendation));
+        List<Film> filmList = filmStorage.getFilmsForRecommendation(filmIdsForRecommendation);
         genresStorage.load(filmList);
         directorStorage.load(filmList);
         log.info("Список рекомендованных фильмов пользователю, \"{}\"", userId);
